@@ -1,6 +1,0 @@
-floor scale(16 1 30)
-door pos(0 0 30)
-candle pos(-7 0 17)
-candle pos( 70 0 17)
-wall scale(16 1 4) flag(1)
-start pos(0 0 -29)
