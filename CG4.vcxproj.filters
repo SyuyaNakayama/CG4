@@ -30,9 +30,6 @@
     <Filter Include="ソース ファイル\functions">
       <UniqueIdentifier>{823e7a3e-f66c-4d55-a1f7-a5ed16915fdf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\collider">
-      <UniqueIdentifier>{805bdbf2-d804-43b6-b7e8-fe0bd2617915}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\3d\object">
       <UniqueIdentifier>{c425de59-8479-456f-9548-a18c39f17171}</UniqueIdentifier>
     </Filter>
@@ -135,12 +132,6 @@
     <ClCompile Include="SourceFiles\math\Quaternion.cpp">
       <Filter>ソース ファイル\math</Filter>
     </ClCompile>
-    <ClCompile Include="SourceFiles\collider\Collider.cpp">
-      <Filter>ソース ファイル\collider</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceFiles\collider\CollisionManager.cpp">
-      <Filter>ソース ファイル\collider</Filter>
-    </ClCompile>
     <ClCompile Include="SourceFiles\3d\Mesh.cpp">
       <Filter>ソース ファイル\3d\object</Filter>
     </ClCompile>
@@ -235,12 +226,6 @@
     </ClInclude>
     <ClInclude Include="SourceFiles\Light\SpotLight.h">
       <Filter>ソース ファイル\light</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceFiles\collider\Collider.h">
-      <Filter>ソース ファイル\collider</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceFiles\collider\CollisionManager.h">
-      <Filter>ソース ファイル\collider</Filter>
     </ClInclude>
     <ClInclude Include="SourceFiles\3d\Mesh.h">
       <Filter>ソース ファイル\3d\object</Filter>

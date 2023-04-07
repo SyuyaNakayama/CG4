@@ -181,8 +181,6 @@
     <ClCompile Include="SourceFiles\math\Quaternion.cpp" />
     <ClCompile Include="SourceFiles\math\Vector.cpp" />
     <ClCompile Include="SourceFiles\functions\FadeManager.cpp" />
-    <ClCompile Include="SourceFiles\collider\Collider.cpp" />
-    <ClCompile Include="SourceFiles\collider\CollisionManager.cpp" />
     <ClCompile Include="SourceFiles\scene\BaseScene.cpp" />
     <ClCompile Include="SourceFiles\scene\SceneFactory.cpp" />
     <ClCompile Include="SourceFiles\scene\SceneManager.cpp" />
@@ -216,8 +214,6 @@
     <ClInclude Include="SourceFiles\engine\AbstractSceneFactory.h" />
     <ClInclude Include="SourceFiles\scene\BaseScene.h" />
     <ClInclude Include="SourceFiles\functions\FadeManager.h" />
-    <ClInclude Include="SourceFiles\collider\Collider.h" />
-    <ClInclude Include="SourceFiles\collider\CollisionManager.h" />
     <ClInclude Include="SourceFiles\scene\Scene.h" />
     <ClInclude Include="SourceFiles\scene\SceneFactory.h" />
     <ClInclude Include="SourceFiles\scene\SceneManager.h" />
