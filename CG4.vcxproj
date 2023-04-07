@@ -158,24 +158,15 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SourceFiles\objects\Jump.cpp" />
-    <ClCompile Include="SourceFiles\particle\DiffuseParticle.cpp" />
-    <ClCompile Include="SourceFiles\particle\DirectionalParticle.cpp" />
-    <ClCompile Include="SourceFiles\audio\PointAudio.cpp" />
-    <ClCompile Include="SourceFiles\objects\Camera.cpp" />
-    <ClCompile Include="SourceFiles\objects\Player.cpp" />
     <ClCompile Include="SourceFiles\2d\ImGuiManager.cpp" />
     <ClCompile Include="SourceFiles\2d\PostEffect.cpp" />
     <ClCompile Include="SourceFiles\2d\sprite\Sprite.cpp" />
-    <ClCompile Include="SourceFiles\2d\sprite\SpriteAnimation.cpp" />
     <ClCompile Include="SourceFiles\2d\sprite\SpriteCommon.cpp" />
-    <ClCompile Include="SourceFiles\2d\UIDrawer.cpp" />
     <ClCompile Include="SourceFiles\3d\DebugCamera.cpp" />
     <ClCompile Include="SourceFiles\3d\Mesh.cpp" />
     <ClCompile Include="SourceFiles\3d\Model.cpp" />
     <ClCompile Include="SourceFiles\3d\ViewProjection.cpp" />
     <ClCompile Include="SourceFiles\3d\WorldTransform.cpp" />
-    <ClCompile Include="SourceFiles\audio\Audio.cpp" />
     <ClCompile Include="SourceFiles\base\D3D12Common.cpp" />
     <ClCompile Include="SourceFiles\engine\DirectXCommon.cpp" />
     <ClCompile Include="SourceFiles\engine\Framework.cpp" />
@@ -184,43 +175,28 @@
     <ClCompile Include="SourceFiles\base\MyGame.cpp" />
     <ClCompile Include="SourceFiles\engine\WindowsAPI.cpp" />
     <ClCompile Include="SourceFiles\functions\Color.cpp" />
-    <ClCompile Include="SourceFiles\particle\ParticleManager.cpp" />
     <ClCompile Include="SourceFiles\functions\Timer.cpp" />
     <ClCompile Include="SourceFiles\Light\LightGroup.cpp" />
     <ClCompile Include="SourceFiles\math\Matrix4.cpp" />
     <ClCompile Include="SourceFiles\math\Quaternion.cpp" />
     <ClCompile Include="SourceFiles\math\Vector.cpp" />
-    <ClCompile Include="SourceFiles\objects\Gimmick.cpp" />
-    <ClCompile Include="SourceFiles\objects\Skydome.cpp" />
-    <ClCompile Include="SourceFiles\objects\Stage.cpp" />
     <ClCompile Include="SourceFiles\functions\FadeManager.cpp" />
     <ClCompile Include="SourceFiles\collider\Collider.cpp" />
     <ClCompile Include="SourceFiles\collider\CollisionManager.cpp" />
     <ClCompile Include="SourceFiles\scene\BaseScene.cpp" />
     <ClCompile Include="SourceFiles\scene\SceneFactory.cpp" />
     <ClCompile Include="SourceFiles\scene\SceneManager.cpp" />
-    <ClCompile Include="SourceFiles\scene\TitleScene.cpp" />
-    <ClCompile Include="SourceFiles\scene\GamePlayScene.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SourceFiles\objects\Jump.h" />
-    <ClInclude Include="SourceFiles\particle\DiffuseParticle.h" />
-    <ClInclude Include="SourceFiles\particle\DirectionalParticle.h" />
-    <ClInclude Include="SourceFiles\audio\PointAudio.h" />
-    <ClInclude Include="SourceFiles\objects\Camera.h" />
-    <ClInclude Include="SourceFiles\objects\Player.h" />
     <ClInclude Include="SourceFiles\2d\ImGuiManager.h" />
     <ClInclude Include="SourceFiles\2d\PostEffect.h" />
     <ClInclude Include="SourceFiles\2d\sprite\Sprite.h" />
-    <ClInclude Include="SourceFiles\2d\sprite\SpriteAnimation.h" />
     <ClInclude Include="SourceFiles\2d\sprite\SpriteCommon.h" />
-    <ClInclude Include="SourceFiles\2d\UIDrawer.h" />
     <ClInclude Include="SourceFiles\3d\DebugCamera.h" />
     <ClInclude Include="SourceFiles\3d\Mesh.h" />
     <ClInclude Include="SourceFiles\3d\Model.h" />
     <ClInclude Include="SourceFiles\3d\ViewProjection.h" />
     <ClInclude Include="SourceFiles\3d\WorldTransform.h" />
-    <ClInclude Include="SourceFiles\audio\Audio.h" />
     <ClInclude Include="SourceFiles\base\D3D12Common.h" />
     <ClInclude Include="SourceFiles\engine\DirectXCommon.h" />
     <ClInclude Include="SourceFiles\engine\Framework.h" />
@@ -228,7 +204,6 @@
     <ClInclude Include="SourceFiles\base\MyGame.h" />
     <ClInclude Include="SourceFiles\engine\WindowsAPI.h" />
     <ClInclude Include="SourceFiles\functions\Color.h" />
-    <ClInclude Include="SourceFiles\particle\ParticleManager.h" />
     <ClInclude Include="SourceFiles\functions\Timer.h" />
     <ClInclude Include="SourceFiles\Light\CircleShadow.h" />
     <ClInclude Include="SourceFiles\Light\DirectionalLight.h" />
@@ -238,9 +213,6 @@
     <ClInclude Include="SourceFiles\math\Matrix4.h" />
     <ClInclude Include="SourceFiles\math\Quaternion.h" />
     <ClInclude Include="SourceFiles\math\Vector.h" />
-    <ClInclude Include="SourceFiles\objects\Gimmick.h" />
-    <ClInclude Include="SourceFiles\objects\Skydome.h" />
-    <ClInclude Include="SourceFiles\objects\Stage.h" />
     <ClInclude Include="SourceFiles\engine\AbstractSceneFactory.h" />
     <ClInclude Include="SourceFiles\scene\BaseScene.h" />
     <ClInclude Include="SourceFiles\functions\FadeManager.h" />
@@ -249,8 +221,6 @@
     <ClInclude Include="SourceFiles\scene\Scene.h" />
     <ClInclude Include="SourceFiles\scene\SceneFactory.h" />
     <ClInclude Include="SourceFiles\scene\SceneManager.h" />
-    <ClInclude Include="SourceFiles\scene\TitleScene.h" />
-    <ClInclude Include="SourceFiles\scene\GamePlayScene.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="External\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
