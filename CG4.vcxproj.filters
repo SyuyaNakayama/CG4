@@ -168,11 +168,14 @@
     <ClCompile Include="SourceFiles\scene\BaseScene.cpp">
       <Filter>ソース ファイル\scene</Filter>
     </ClCompile>
-    <ClCompile Include="SourceFiles\2d\sprite\Sprite.cpp">
+    <ClCompile Include="SourceFiles\2d\Sprite.cpp">
       <Filter>ソース ファイル\2d</Filter>
     </ClCompile>
-    <ClCompile Include="SourceFiles\2d\sprite\SpriteCommon.cpp">
+    <ClCompile Include="SourceFiles\2d\SpriteCommon.cpp">
       <Filter>ソース ファイル\2d</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceFiles\scene\NormalScene.cpp">
+      <Filter>ソース ファイル\scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -263,11 +266,14 @@
     <ClInclude Include="SourceFiles\base\D3D12Common.h">
       <Filter>ソース ファイル\base</Filter>
     </ClInclude>
-    <ClInclude Include="SourceFiles\2d\sprite\Sprite.h">
+    <ClInclude Include="SourceFiles\2d\Sprite.h">
       <Filter>ソース ファイル\2d</Filter>
     </ClInclude>
-    <ClInclude Include="SourceFiles\2d\sprite\SpriteCommon.h">
+    <ClInclude Include="SourceFiles\2d\SpriteCommon.h">
       <Filter>ソース ファイル\2d</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceFiles\scene\NormalScene.h">
+      <Filter>ソース ファイル\scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

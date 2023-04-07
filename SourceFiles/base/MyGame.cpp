@@ -1,15 +1,15 @@
 ﻿#include "MyGame.h"
 #include "Model.h"
 #include "ImGuiManager.h"
-#include "CollisionManager.h"
-#include <future>
 
 void MyGame::Initialize()
 {
 	Framework::Initialize();
-	sceneManager->SetNextScene(Scene::Play, false);
-	Model::InitializeGraphicsPipeline();
+	sceneManager->SetNextScene(Scene::Normal, false);
+	Model::StaticInitialize();
 	ImGuiManager::Initialize();
+	viewProjection.Initialize();
+	WorldTransform::SetViewProjection(&viewProjection);
 	postEffect = std::make_unique<PostEffect>();
 	postEffect->Initialize();
 }
@@ -18,8 +18,8 @@ void MyGame::Update()
 {
 	ImGuiManager::Begin();
 	Framework::Update();
-	CollisionManager::CheckAllCollisions();
 	WorldTransform::CameraUpdate();
+	Model::LightUpdate();
 	ImGuiManager::End();
 }
 

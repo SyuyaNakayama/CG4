@@ -65,7 +65,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)SourceFiles\2d;$(ProjectDir)SourceFiles\2d\sprite;$(ProjectDir)SourceFiles\3d;$(ProjectDir)SourceFiles\audio;$(ProjectDir)SourceFiles\base;$(ProjectDir)SourceFiles\collider;$(ProjectDir)SourceFiles\engine;$(ProjectDir)SourceFiles\functions;$(ProjectDir)SourceFiles\light;$(ProjectDir)SourceFiles\math;$(ProjectDir)SourceFiles\objects;$(ProjectDir)SourceFiles\particle;$(ProjectDir)SourceFiles\scene;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)SourceFiles\2d;$(ProjectDir)SourceFiles\3d;$(ProjectDir)SourceFiles\base;$(ProjectDir)SourceFiles\engine;$(ProjectDir)SourceFiles\functions;$(ProjectDir)SourceFiles\light;$(ProjectDir)SourceFiles\math;$(ProjectDir)SourceFiles\scene;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
@@ -89,7 +89,7 @@
       <ExceptionHandling>Sync</ExceptionHandling>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)SourceFiles\2d;$(ProjectDir)SourceFiles\2d\sprite;$(ProjectDir)SourceFiles\3d;$(ProjectDir)SourceFiles\audio;$(ProjectDir)SourceFiles\base;$(ProjectDir)SourceFiles\collider;$(ProjectDir)SourceFiles\engine;$(ProjectDir)SourceFiles\functions;$(ProjectDir)SourceFiles\light;$(ProjectDir)SourceFiles\math;$(ProjectDir)SourceFiles\objects;$(ProjectDir)SourceFiles\particle;$(ProjectDir)SourceFiles\scene;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)SourceFiles\2d;$(ProjectDir)SourceFiles\3d;$(ProjectDir)SourceFiles\base;$(ProjectDir)SourceFiles\engine;$(ProjectDir)SourceFiles\functions;$(ProjectDir)SourceFiles\light;$(ProjectDir)SourceFiles\math;$(ProjectDir)SourceFiles\scene;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
@@ -160,8 +160,8 @@
   <ItemGroup>
     <ClCompile Include="SourceFiles\2d\ImGuiManager.cpp" />
     <ClCompile Include="SourceFiles\2d\PostEffect.cpp" />
-    <ClCompile Include="SourceFiles\2d\sprite\Sprite.cpp" />
-    <ClCompile Include="SourceFiles\2d\sprite\SpriteCommon.cpp" />
+    <ClCompile Include="SourceFiles\2d\Sprite.cpp" />
+    <ClCompile Include="SourceFiles\2d\SpriteCommon.cpp" />
     <ClCompile Include="SourceFiles\3d\DebugCamera.cpp" />
     <ClCompile Include="SourceFiles\3d\Mesh.cpp" />
     <ClCompile Include="SourceFiles\3d\Model.cpp" />
@@ -182,14 +182,15 @@
     <ClCompile Include="SourceFiles\math\Vector.cpp" />
     <ClCompile Include="SourceFiles\functions\FadeManager.cpp" />
     <ClCompile Include="SourceFiles\scene\BaseScene.cpp" />
+    <ClCompile Include="SourceFiles\scene\NormalScene.cpp" />
     <ClCompile Include="SourceFiles\scene\SceneFactory.cpp" />
     <ClCompile Include="SourceFiles\scene\SceneManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceFiles\2d\ImGuiManager.h" />
     <ClInclude Include="SourceFiles\2d\PostEffect.h" />
-    <ClInclude Include="SourceFiles\2d\sprite\Sprite.h" />
-    <ClInclude Include="SourceFiles\2d\sprite\SpriteCommon.h" />
+    <ClInclude Include="SourceFiles\2d\Sprite.h" />
+    <ClInclude Include="SourceFiles\2d\SpriteCommon.h" />
     <ClInclude Include="SourceFiles\3d\DebugCamera.h" />
     <ClInclude Include="SourceFiles\3d\Mesh.h" />
     <ClInclude Include="SourceFiles\3d\Model.h" />
@@ -214,6 +215,7 @@
     <ClInclude Include="SourceFiles\engine\AbstractSceneFactory.h" />
     <ClInclude Include="SourceFiles\scene\BaseScene.h" />
     <ClInclude Include="SourceFiles\functions\FadeManager.h" />
+    <ClInclude Include="SourceFiles\scene\NormalScene.h" />
     <ClInclude Include="SourceFiles\scene\Scene.h" />
     <ClInclude Include="SourceFiles\scene\SceneFactory.h" />
     <ClInclude Include="SourceFiles\scene\SceneManager.h" />

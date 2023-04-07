@@ -1,4 +1,5 @@
 #include "SceneFactory.h"
+#include "NormalScene.h"
 #include <cassert>
 
 SceneFactory* SceneFactory::GetInstance()
@@ -14,6 +15,7 @@ BaseScene* SceneFactory::CreateScene(Scene scene)
     switch (scene)
     {
     case Scene::Null: return nullptr;
+    case Scene::Normal: newScene = new NormalScene;
     }
     
     assert(newScene);

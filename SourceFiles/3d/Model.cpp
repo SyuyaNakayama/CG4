@@ -6,10 +6,10 @@ using namespace std;
 // 静的メンバ変数の実体
 ComPtr<ID3D12PipelineState> Model::pipelinestate = nullptr;
 ComPtr<ID3D12RootSignature> Model::rootsignature = nullptr;
-LightGroup* Model::lightGroup;
-std::list<Model*> Model::models;
+unique_ptr<LightGroup> Model::lightGroup;
+list<Model*> Model::models;
 
-void Model::InitializeGraphicsPipeline()
+void Model::StaticInitialize()
 {
 	PipelineManager pipelineManager;
 	pipelineManager.LoadShaders(L"OBJVertexShader", L"OBJPixelShader");
@@ -24,6 +24,8 @@ void Model::InitializeGraphicsPipeline()
 	pipelineManager.AddRootParameter(PipelineManager::RootParamType::DescriptorTable);
 	for (size_t i = 0; i < 4; i++) { pipelineManager.AddRootParameter(PipelineManager::RootParamType::CBV); }
 	pipelineManager.CreatePipeline(pipelinestate, rootsignature);
+	// ライトグループ生成
+	lightGroup = LightGroup::Create();
 }
 
 std::unique_ptr<Model> Model::Create(const string& modelName, bool smoothing)
