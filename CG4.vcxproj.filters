@@ -51,6 +51,9 @@
     <Filter Include="シェーダー ファイル\postEffect">
       <UniqueIdentifier>{aace76a6-7633-45eb-827c-23d28f0560d6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\3d\fbx">
+      <UniqueIdentifier>{cd12517d-9b9f-4713-9cbd-76d8ce9c3564}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Sprite.hlsli">
@@ -177,6 +180,15 @@
     <ClCompile Include="SourceFiles\scene\NormalScene.cpp">
       <Filter>ソース ファイル\scene</Filter>
     </ClCompile>
+    <ClCompile Include="SourceFiles\3d\fbx\FbxLoader.cpp">
+      <Filter>ソース ファイル\3d\fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceFiles\3d\fbx\FbxModel.cpp">
+      <Filter>ソース ファイル\3d\fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceFiles\3d\fbx\FbxObject3d.cpp">
+      <Filter>ソース ファイル\3d\fbx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceFiles\math\Matrix4.h">
@@ -274,6 +286,15 @@
     </ClInclude>
     <ClInclude Include="SourceFiles\scene\NormalScene.h">
       <Filter>ソース ファイル\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceFiles\3d\fbx\FbxLoader.h">
+      <Filter>ソース ファイル\3d\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceFiles\3d\fbx\FbxModel.h">
+      <Filter>ソース ファイル\3d\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceFiles\3d\fbx\FbxObject3d.h">
+      <Filter>ソース ファイル\3d\fbx</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
