@@ -1,4 +1,5 @@
 ﻿#include "FbxLoader.h"
+#include "DirectXCommon.h"
 #include <cassert>
 using namespace DirectX;
 
@@ -11,10 +12,9 @@ FbxLoader* FbxLoader::GetInstance()
 	return &instance;
 }
 
-void FbxLoader::Initialize(ID3D12Device* device)
+void FbxLoader::Initialize()
 {
 	assert(fbxManager == nullptr);
-	this->device = device;
 	fbxManager = FbxManager::Create();
 	FbxIOSettings* ios = FbxIOSettings::Create(fbxManager, IOSROOT);
 	fbxManager->SetIOSettings(ios);
@@ -49,7 +49,7 @@ FbxModel* FbxLoader::LoadModelFromFile(const string& modelName)
 	ParseNodeRecursive(model, fbxScene->GetRootNode());
 	fbxScene->Destroy();
 
-	model->CreateBuffers(device);
+	model->CreateBuffers();
 
 	return model;
 }

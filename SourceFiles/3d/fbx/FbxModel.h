@@ -4,7 +4,6 @@
 #include <DirectXTex.h>
 #include <windows.h>
 #include <wrl.h>
-#include <d3d12.h>
 #include <d3dx12.h>
 #include "Matrix4.h"
 
@@ -50,7 +49,7 @@ private:
 public:
 	friend class FbxLoader;
 
-	void CreateBuffers(ID3D12Device* device);
+	void CreateBuffers();
 	void Draw(ID3D12GraphicsCommandList* cmdList);
 
 	const Matrix4& GetModelTransform() { return meshNode->globalTransform; }

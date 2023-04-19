@@ -1,8 +1,10 @@
 #include "FbxModel.h"
+#include "DirectXCommon.h"
 
-void FbxModel::CreateBuffers(ID3D12Device* device)
+void FbxModel::CreateBuffers()
 {
 	HRESULT result;
+	ID3D12Device* device = DirectXCommon::GetInstance()->GetDevice();
 
 #pragma region 頂点バッファ設定
 	UINT sizeVB = static_cast<UINT>(sizeof(VertexPosNormalUv) * vertices.size());

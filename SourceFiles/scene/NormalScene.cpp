@@ -6,9 +6,7 @@ void NormalScene::Initialize()
 {
 	debugCamera.Initialize();
 	WorldTransform::SetViewProjection(&debugCamera.GetViewProjection());
-	FbxLoader::GetInstance()->Initialize(DirectXCommon::GetInstance()->GetDevice());
-	FbxObject3d::SetDevice(DirectXCommon::GetInstance()->GetDevice());
-	FbxObject3d::SetViewProjection(&debugCamera.GetViewProjection());
+	FbxLoader::GetInstance()->Initialize();
 	FbxObject3d::CreateGraphicsPipeline();
 	fbxModel_ = FbxLoader::GetInstance()->LoadModelFromFile("cube");
 	fbxObject_ = new FbxObject3d;

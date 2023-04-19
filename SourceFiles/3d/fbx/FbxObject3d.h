@@ -1,14 +1,6 @@
 #pragma once
 #include "FbxModel.h"
-#include "ViewProjection.h"
 #include "WorldTransform.h"
-#include "Matrix4.h"
-#include <Windows.h>
-#include <wrl.h>
-#include <d3d12.h>
-#include <d3dx12.h>
-#include <DirectXMath.h>
-#include <string>
 
 class FbxObject3d
 {
@@ -25,18 +17,13 @@ public: // サブクラス
 	};
 
 public: // 静的メンバ関数
-	static ViewProjection* viewProjection;
 	/// <summary>
 	/// グラフィックパイプラインの生成
 	/// </summary>
 	static void CreateGraphicsPipeline();
-	// setter
-	static void SetDevice(ID3D12Device* device) { FbxObject3d::device = device; }
-	static void SetViewProjection(ViewProjection* viewProjection) { FbxObject3d::viewProjection = viewProjection; }
 
 private: // 静的メンバ変数
 	// デバイス
-	static ID3D12Device* device;
 	// ルートシグネチャ
 	static ComPtr<ID3D12RootSignature> rootsignature;
 	// パイプラインステートオブジェクト

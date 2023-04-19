@@ -1,10 +1,6 @@
 ﻿#pragma once
-
 #include "fbxsdk.h"
 #include "FbxModel.h"
-#include <d3d12.h>
-#include <d3dx12.h>
-#include <string>
 
 class FbxLoader
 {
@@ -19,14 +15,13 @@ public:
 	/// <returns>インスタンス</returns>
 	static FbxLoader* GetInstance();
 
-	void Initialize(ID3D12Device* device);
+	void Initialize();
 	void Finalize();
 	FbxModel* LoadModelFromFile(const string& modelName);
 	void ParseNodeRecursive(FbxModel* model, FbxNode* fbxNode, Node* parent = nullptr);
 	void ParseMesh(FbxModel* model, FbxNode* fbxNode);
 	string ExtractFileName(const string& PATH);
 private:
-	ID3D12Device* device = nullptr;
 	FbxManager* fbxManager = nullptr;
 	FbxImporter* fbxImporter = nullptr;
 	static const string DEFAULT_TEXTURE_FILE_NAME;

@@ -1,11 +1,10 @@
 #include "FbxObject3d.h"
+#include "DirectXCommon.h"
 #include <d3dcompiler.h>
 #pragma comment(lib, "d3dcompiler.lib")
 using namespace Microsoft::WRL;
 using namespace DirectX;
 
-ID3D12Device* FbxObject3d::device = nullptr;
-ViewProjection* FbxObject3d::viewProjection = nullptr;
 ComPtr<ID3D12RootSignature> FbxObject3d::rootsignature;
 ComPtr<ID3D12PipelineState> FbxObject3d::pipelinestate;
 
@@ -15,8 +14,6 @@ void FbxObject3d::CreateGraphicsPipeline()
 	ComPtr<ID3DBlob> vsBlob; // 頂点シェーダオブジェクト
 	ComPtr<ID3DBlob> psBlob;    // ピクセルシェーダオブジェクト
 	ComPtr<ID3DBlob> errorBlob; // エラーオブジェクト
-
-	assert(device);
 
 	// 頂点シェーダの読み込みとコンパイル
 	result = D3DCompileFromFile(
@@ -92,8 +89,6 @@ void FbxObject3d::CreateGraphicsPipeline()
 	gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
 	// ラスタライザステート
 	gpipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	//gpipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-	//gpipeline.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
 	// デプスステンシルステート
 	gpipeline.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 
@@ -131,7 +126,7 @@ void FbxObject3d::CreateGraphicsPipeline()
 	descRangeSRV.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0); // t0 レジスタ
 
 	// ルートパラメータ
-	CD3DX12_ROOT_PARAMETER rootparams[2];
+	CD3DX12_ROOT_PARAMETER rootparams[2]{};
 	// CBV（座標変換行列用）
 	rootparams[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL);
 	// SRV（テクスチャ）
@@ -148,6 +143,7 @@ void FbxObject3d::CreateGraphicsPipeline()
 	// バージョン自動判定のシリアライズ
 	result = D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, &rootSigBlob, &errorBlob);
 	// ルートシグネチャの生成
+	ID3D12Device* device = DirectXCommon::GetInstance()->GetDevice();
 	result = device->CreateRootSignature(0, rootSigBlob->GetBufferPointer(), rootSigBlob->GetBufferSize(), IID_PPV_ARGS(rootsignature.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) { assert(0); }
 
@@ -162,13 +158,14 @@ void FbxObject3d::Initialize(WorldTransform* worldTransform)
 {
 	HRESULT result;
 	// 定数バッファの生成
-	result = device->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataTransform) + 0xff) & ~0xff),
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&constBuffTransform));
+	result = DirectXCommon::GetInstance()->GetDevice()->
+		CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+			D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataTransform) + 0xff) & ~0xff),
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(&constBuffTransform));
 
 	this->worldTransform = worldTransform;
 	this->worldTransform->Initialize();
@@ -181,11 +178,11 @@ void FbxObject3d::Update()
 	// スケール、回転、平行移動行列の計算
 	worldTransform->Update();
 	// ビュープロジェクション行列
-	const Matrix4& matViewProjection = viewProjection->GetViewProjectionMatrix();
+	const Matrix4& matViewProjection = WorldTransform::GetViewProjection()->GetViewProjectionMatrix();
 	// モデルのメッシュトランスフォーム
 	const Matrix4& modelTransform = model->GetModelTransform();
 	// カメラ座標
-	const Vector3& cameraPos = viewProjection->eye;
+	const Vector3& cameraPos = WorldTransform::GetViewProjection()->eye;
 
 	HRESULT result;
 	// 定数バッファへデータ転送
@@ -202,9 +199,7 @@ void FbxObject3d::Update()
 void FbxObject3d::Draw(ID3D12GraphicsCommandList* cmdList)
 {
 	// モデルの割り当てがなければ描画しない
-	if (model == nullptr) {
-		return;
-	}
+	if (model == nullptr) { return; }
 
 	// パイプラインステートの設定
 	cmdList->SetPipelineState(pipelinestate.Get());
@@ -218,4 +213,3 @@ void FbxObject3d::Draw(ID3D12GraphicsCommandList* cmdList)
 	// モデル描画
 	model->Draw(cmdList);
 }
-;
