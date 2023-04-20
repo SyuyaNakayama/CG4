@@ -33,16 +33,8 @@ void FbxObject3d::CreateGraphicsPipeline()
 
 void FbxObject3d::Initialize(WorldTransform* worldTransform)
 {
-	HRESULT result;
 	// 定数バッファの生成
-	result = DirectXCommon::GetInstance()->GetDevice()->
-		CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataTransform) + 0xff) & ~0xff),
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(&constBuffTransform));
+	CreateBuffer(&constBuffTransform, &constMap, (sizeof(ConstBufferDataTransform) + 0xff) & ~0xff);
 
 	this->worldTransform = worldTransform;
 	this->worldTransform->Initialize();
@@ -53,16 +45,10 @@ void FbxObject3d::Update()
 	// スケール、回転、平行移動行列の計算
 	worldTransform->Update();
 
-	HRESULT result;
 	// 定数バッファへデータ転送
-	ConstBufferDataTransform* constMap = nullptr;
-	result = constBuffTransform->Map(0, nullptr, (void**)&constMap);
-	if (SUCCEEDED(result)) {
-		constMap->viewproj = WorldTransform::GetViewProjection()->GetViewProjectionMatrix();
-		constMap->world = model->GetModelTransform() * worldTransform->matWorld;
-		constMap->cameraPos = WorldTransform::GetViewProjection()->eye;
-		constBuffTransform->Unmap(0, nullptr);
-	}
+	constMap->viewproj = WorldTransform::GetViewProjection()->GetViewProjectionMatrix();
+	constMap->world = model->GetModelTransform() * worldTransform->matWorld;
+	constMap->cameraPos = WorldTransform::GetViewProjection()->eye;
 }
 
 void FbxObject3d::Draw()

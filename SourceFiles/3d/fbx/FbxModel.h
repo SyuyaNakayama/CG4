@@ -46,6 +46,9 @@ private:
 	Vector3 ambient = { 1,1,1 }, diffuse = { 1,1,1 };
 	TexMetadata metadata{};
 	ScratchImage scratchImg{};
+	VertexPosNormalUv* vertMap = nullptr;
+	uint16_t* indexMap = nullptr;
+
 public:
 	friend class FbxLoader;
 

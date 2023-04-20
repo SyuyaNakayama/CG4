@@ -23,7 +23,6 @@ public: // 静的メンバ関数
 	static void CreateGraphicsPipeline();
 
 private: // 静的メンバ変数
-	// デバイス
 	// ルートシグネチャ
 	static ComPtr<ID3D12RootSignature> rootsignature;
 	// パイプラインステートオブジェクト
@@ -50,6 +49,7 @@ public: // メンバ関数
 protected: // メンバ変数
 	// 定数バッファ
 	ComPtr<ID3D12Resource> constBuffTransform;
+	ConstBufferDataTransform* constMap = nullptr;
 	WorldTransform* worldTransform;
 	// モデル
 	FbxModel* model = nullptr;
