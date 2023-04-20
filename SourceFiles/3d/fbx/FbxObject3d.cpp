@@ -173,25 +173,17 @@ void FbxObject3d::Initialize(WorldTransform* worldTransform)
 
 void FbxObject3d::Update()
 {
-	Matrix4 matScale, matRot, matTrans;
-
 	// スケール、回転、平行移動行列の計算
 	worldTransform->Update();
-	// ビュープロジェクション行列
-	const Matrix4& matViewProjection = WorldTransform::GetViewProjection()->GetViewProjectionMatrix();
-	// モデルのメッシュトランスフォーム
-	const Matrix4& modelTransform = model->GetModelTransform();
-	// カメラ座標
-	const Vector3& cameraPos = WorldTransform::GetViewProjection()->eye;
 
 	HRESULT result;
 	// 定数バッファへデータ転送
 	ConstBufferDataTransform* constMap = nullptr;
 	result = constBuffTransform->Map(0, nullptr, (void**)&constMap);
 	if (SUCCEEDED(result)) {
-		constMap->viewproj = matViewProjection;
-		constMap->world = modelTransform * worldTransform->matWorld;
-		constMap->cameraPos = cameraPos;
+		constMap->viewproj = WorldTransform::GetViewProjection()->GetViewProjectionMatrix();
+		constMap->world = model->GetModelTransform() * worldTransform->matWorld;
+		constMap->cameraPos = WorldTransform::GetViewProjection()->eye;
 		constBuffTransform->Unmap(0, nullptr);
 	}
 }
