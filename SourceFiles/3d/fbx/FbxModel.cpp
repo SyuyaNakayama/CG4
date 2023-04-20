@@ -80,8 +80,9 @@ void FbxModel::CreateBuffers()
 	device->CreateShaderResourceView(texBuff.Get(), &srvDesc, descHeapSRV->GetCPUDescriptorHandleForHeapStart());
 }
 
-void FbxModel::Draw(ID3D12GraphicsCommandList* cmdList)
+void FbxModel::Draw()
 {
+	ID3D12GraphicsCommandList* cmdList = DirectXCommon::GetInstance()->GetCommandList();
 	cmdList->IASetVertexBuffers(0, 1, &vbView);
 	cmdList->IASetIndexBuffer(&ibView);
 

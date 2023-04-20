@@ -50,7 +50,7 @@ public:
 	friend class FbxLoader;
 
 	void CreateBuffers();
-	void Draw(ID3D12GraphicsCommandList* cmdList);
+	void Draw();
 
 	const Matrix4& GetModelTransform() { return meshNode->globalTransform; }
 };

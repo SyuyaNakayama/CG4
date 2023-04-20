@@ -22,5 +22,5 @@ void NormalScene::Update()
 
 void NormalScene::Draw()
 {
-	fbxObject_->Draw(DirectXCommon::GetInstance()->GetCommandList());
+	fbxObject_->Draw();
 }

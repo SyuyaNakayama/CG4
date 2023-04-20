@@ -196,11 +196,12 @@ void FbxObject3d::Update()
 	}
 }
 
-void FbxObject3d::Draw(ID3D12GraphicsCommandList* cmdList)
+void FbxObject3d::Draw()
 {
 	// モデルの割り当てがなければ描画しない
 	if (model == nullptr) { return; }
 
+	ID3D12GraphicsCommandList* cmdList = DirectXCommon::GetInstance()->GetCommandList();
 	// パイプラインステートの設定
 	cmdList->SetPipelineState(pipelinestate.Get());
 	// ルートシグネチャの設定
@@ -211,5 +212,5 @@ void FbxObject3d::Draw(ID3D12GraphicsCommandList* cmdList)
 	cmdList->SetGraphicsRootConstantBufferView(0, constBuffTransform->GetGPUVirtualAddress());
 
 	// モデル描画
-	model->Draw(cmdList);
+	model->Draw();
 }

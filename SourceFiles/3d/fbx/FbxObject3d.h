@@ -43,7 +43,7 @@ public: // ƒƒ“ƒoŠÖ”
 	/// <summary>
 	/// •`‰æ
 	/// </summary>
-	void Draw(ID3D12GraphicsCommandList* cmdList);
+	void Draw();
 
 	void SetModel(FbxModel* model) { this->model = model; }
 
