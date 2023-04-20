@@ -36,7 +36,6 @@ private:
 	ComPtr<ID3D12Resource> vertBuff, indexBuff, texBuff;
 	D3D12_VERTEX_BUFFER_VIEW vbView{};
 	D3D12_INDEX_BUFFER_VIEW ibView{};
-	ComPtr<ID3D12DescriptorHeap> descHeapSRV;
 
 	string name;
 	vector<Node> nodes;

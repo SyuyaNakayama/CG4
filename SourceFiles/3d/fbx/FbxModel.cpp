@@ -1,5 +1,6 @@
 #include "FbxModel.h"
 #include "D3D12Common.h"
+#include "SpriteCommon.h"
 
 void FbxModel::CreateBuffers()
 {
@@ -38,12 +39,6 @@ void FbxModel::CreateBuffers()
 
 	result = texBuff->WriteToSubresource(0, nullptr, img->pixels, (UINT)img->rowPitch, (UINT)img->slicePitch);
 #pragma endregion
-	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc{};
-	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	descHeapDesc.NumDescriptors = 1;
-	result = device->CreateDescriptorHeap(&descHeapDesc, IID_PPV_ARGS(&descHeapSRV));
-
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 	D3D12_RESOURCE_DESC resDesc = texBuff->GetDesc();
 
@@ -52,7 +47,8 @@ void FbxModel::CreateBuffers()
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
 
-	device->CreateShaderResourceView(texBuff.Get(), &srvDesc, descHeapSRV->GetCPUDescriptorHandleForHeapStart());
+	device->CreateShaderResourceView(texBuff.Get(), &srvDesc, 
+		SpriteCommon::GetDescriptorHeap()->GetCPUDescriptorHandleForHeapStart());
 }
 
 void FbxModel::Draw()
@@ -61,8 +57,9 @@ void FbxModel::Draw()
 	cmdList->IASetVertexBuffers(0, 1, &vbView);
 	cmdList->IASetIndexBuffer(&ibView);
 
-	ID3D12DescriptorHeap* ppHeaps[] = { descHeapSRV.Get() };
+	ID3D12DescriptorHeap* descHeap = SpriteCommon::GetDescriptorHeap();
+	ID3D12DescriptorHeap* ppHeaps[] = { descHeap };
 	cmdList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
-	cmdList->SetGraphicsRootDescriptorTable(1, descHeapSRV->GetGPUDescriptorHandleForHeapStart());
+	cmdList->SetGraphicsRootDescriptorTable(1, descHeap->GetGPUDescriptorHandleForHeapStart());
 	cmdList->DrawIndexedInstanced((UINT)indices.size(), 1, 0, 0, 0);
 }
