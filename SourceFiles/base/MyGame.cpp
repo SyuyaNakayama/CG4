@@ -1,6 +1,7 @@
 ﻿#include "MyGame.h"
 #include "Model.h"
 #include "ImGuiManager.h"
+#include "FbxLoader.h"
 
 void MyGame::Initialize()
 {
@@ -10,6 +11,7 @@ void MyGame::Initialize()
 	ImGuiManager::Initialize();
 	viewProjection.Initialize();
 	WorldTransform::SetViewProjection(&viewProjection);
+	FbxLoader::Initialize();
 	postEffect = std::make_unique<PostEffect>();
 	postEffect->Initialize();
 }
@@ -38,5 +40,6 @@ void MyGame::Draw()
 void MyGame::Finalize()
 {
 	ImGuiManager::Finalize();
+	FbxLoader::Finalize();
 	Framework::Finalize();
 }

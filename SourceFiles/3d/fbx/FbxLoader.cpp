@@ -5,16 +5,12 @@ using namespace DirectX;
 
 const std::string FbxLoader::BASE_DIRECTORY = "Resources/";
 const std::string FbxLoader::DEFAULT_TEXTURE_FILE_NAME = "white1x1.png";
-
-FbxLoader* FbxLoader::GetInstance()
-{
-	static FbxLoader instance;
-	return &instance;
-}
+FbxManager* FbxLoader::fbxManager = nullptr;
+FbxImporter* FbxLoader::fbxImporter = nullptr;
 
 void FbxLoader::Initialize()
 {
-	assert(fbxManager == nullptr);
+	assert(fbxManager == nullptr); // 再初期化を防ぐ
 	fbxManager = FbxManager::Create();
 	FbxIOSettings* ios = FbxIOSettings::Create(fbxManager, IOSROOT);
 	fbxManager->SetIOSettings(ios);

@@ -9,7 +9,7 @@ protected: // エイリアス
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 public: // サブクラス
 	// 定数バッファ用データ構造体（座標変換行列用）
-	struct ConstBufferDataTransform
+	struct ConstBufferData
 	{
 		Matrix4 viewproj;    // ビュープロジェクション行列
 		Matrix4 world; // ワールド行列
@@ -32,7 +32,7 @@ public: // メンバ関数
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	void Initialize(WorldTransform* worldTransform);
+	void Initialize(WorldTransform* worldTransform, FbxModel* model);
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -44,12 +44,10 @@ public: // メンバ関数
 	/// </summary>
 	void Draw();
 
-	void SetModel(FbxModel* model) { this->model = model; }
-
 protected: // メンバ変数
 	// 定数バッファ
-	ComPtr<ID3D12Resource> constBuffTransform;
-	ConstBufferDataTransform* constMap = nullptr;
+	ComPtr<ID3D12Resource> constBuff;
+	ConstBufferData* constMap = nullptr;
 	WorldTransform* worldTransform;
 	// モデル
 	FbxModel* model = nullptr;

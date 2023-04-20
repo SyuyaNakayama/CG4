@@ -6,37 +6,26 @@ class FbxLoader
 {
 private:
 	using string = std::string;
-public:
 	static const string BASE_DIRECTORY;
 
-	/// <summary>
-	/// シングルトンインスタンスの取得
-	/// </summary>
-	/// <returns>インスタンス</returns>
-	static FbxLoader* GetInstance();
-
-	void Initialize();
-	void Finalize();
-	FbxModel* LoadModelFromFile(const string& modelName);
-	void ParseNodeRecursive(FbxModel* model, FbxNode* fbxNode, Node* parent = nullptr);
-	void ParseMesh(FbxModel* model, FbxNode* fbxNode);
-	string ExtractFileName(const string& PATH);
-private:
-	FbxManager* fbxManager = nullptr;
-	FbxImporter* fbxImporter = nullptr;
+	static FbxManager* fbxManager;
+	static FbxImporter* fbxImporter;
 	static const string DEFAULT_TEXTURE_FILE_NAME;
 
-	// privateなコンストラクタ（シングルトンパターン）
-	FbxLoader() = default;
-	// privateなデストラクタ（シングルトンパターン）
-	~FbxLoader() = default;
-	// コピーコンストラクタを禁止（シングルトンパターン）
-	FbxLoader(const FbxLoader& obj) = delete;
-	// コピー代入演算子を禁止（シングルトンパターン）
-	void operator=(const FbxLoader& obj) = delete;
+	// コンストラクタ、デストラクタ削除
+	FbxLoader() = delete;
+	~FbxLoader() = delete;
 
-	void ParseMeshVertices(FbxModel* model, FbxMesh* fbxMesh);
-	void ParseMeshFaces(FbxModel* model, FbxMesh* fbxMesh);
-	void ParseMaterial(FbxModel* model, FbxNode* fbxNode);
-	void LoadTexture(FbxModel* model, const string& FULLPATH);
+	static void ParseMeshVertices(FbxModel* model, FbxMesh* fbxMesh);
+	static void ParseMeshFaces(FbxModel* model, FbxMesh* fbxMesh);
+	static void ParseMaterial(FbxModel* model, FbxNode* fbxNode);
+	static void LoadTexture(FbxModel* model, const string& FULLPATH);
+	static void ParseNodeRecursive(FbxModel* model, FbxNode* fbxNode, Node* parent = nullptr);
+	static void ParseMesh(FbxModel* model, FbxNode* fbxNode);
+	static string ExtractFileName(const string& PATH);
+
+public:
+	static void Initialize();
+	static void Finalize();
+	static FbxModel* LoadModelFromFile(const string& modelName);
 };

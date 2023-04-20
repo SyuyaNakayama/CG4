@@ -31,13 +31,14 @@ void FbxObject3d::CreateGraphicsPipeline()
 	pManager.CreatePipeline(pipelinestate, rootsignature);
 }
 
-void FbxObject3d::Initialize(WorldTransform* worldTransform)
+void FbxObject3d::Initialize(WorldTransform* worldTransform, FbxModel* model)
 {
 	// 定数バッファの生成
-	CreateBuffer(&constBuffTransform, &constMap, (sizeof(ConstBufferDataTransform) + 0xff) & ~0xff);
+	CreateBuffer(&constBuff, &constMap, (sizeof(ConstBufferData) + 0xff) & ~0xff);
 
 	this->worldTransform = worldTransform;
 	this->worldTransform->Initialize();
+	this->model = model;
 }
 
 void FbxObject3d::Update()
@@ -64,7 +65,7 @@ void FbxObject3d::Draw()
 	// プリミティブ形状を設定
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	// 定数バッファビューをセット
-	cmdList->SetGraphicsRootConstantBufferView(0, constBuffTransform->GetGPUVirtualAddress());
+	cmdList->SetGraphicsRootConstantBufferView(0, constBuff->GetGPUVirtualAddress());
 
 	// モデル描画
 	model->Draw();
