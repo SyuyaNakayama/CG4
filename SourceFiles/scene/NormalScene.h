@@ -1,14 +1,13 @@
 #pragma once
 #include "BaseScene.h"
-#include "FbxObject3d.h"
 #include "DebugCamera.h"
+#include "Model.h"
 
 class NormalScene : public BaseScene
 {
 	DebugCamera debugCamera;
-	FbxModel* fbxModel_;
-	FbxObject3d* fbxObject_;
-	WorldTransform fbxObjWT;
+	std::unique_ptr<Model> sphere;
+	WorldTransform sphereWT;
 
 public:
 	void Initialize();

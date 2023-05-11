@@ -6,19 +6,25 @@ void NormalScene::Initialize()
 {
 	debugCamera.Initialize();
 	WorldTransform::SetViewProjection(&debugCamera.GetViewProjection());
-	FbxObject3d::CreateGraphicsPipeline();
-	fbxModel_ = FbxLoader::LoadModelFromFile("cube");
-	fbxObject_ = new FbxObject3d;
-	fbxObject_->Initialize(&fbxObjWT, fbxModel_);
+	for (size_t i = 1; i < 3; i++)
+	{
+		Model::GetLightGroup()->SetDirLightActive(i, false);
+	}
+	sphere = Model::Create("sphere", true);
+	sphere->GetSprite()->SetColor({ 1,0,0,1 });
+	sphere->Update();
+	sphereWT.Initialize();
 }
 
 void NormalScene::Update()
 {
 	debugCamera.Update();
-	fbxObject_->Update();
+	sphereWT.Update();
 }
 
 void NormalScene::Draw()
 {
-	fbxObject_->Draw();
+	Model::PreDraw();
+	sphere->Draw(sphereWT);
+	Model::PostDraw();
 }

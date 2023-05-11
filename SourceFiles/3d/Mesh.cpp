@@ -181,6 +181,7 @@ void Mesh::LoadMaterial(const string& DIRECTORY_PATH, const string& FILENAME)
 		}
 	}
 	file.close();
+	if (!sprite) { sprite = Sprite::Create("white1x1.png"); }
 }
 
 void Mesh::Update()

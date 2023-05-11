@@ -2,16 +2,18 @@
 #include "Model.h"
 #include "ImGuiManager.h"
 #include "FbxLoader.h"
+#include "FbxObject3d.h"
 
 void MyGame::Initialize()
 {
 	Framework::Initialize();
 	sceneManager->SetNextScene(Scene::Normal, false);
 	Model::StaticInitialize();
+	FbxLoader::Initialize();
+	FbxObject3d::CreateGraphicsPipeline();
 	ImGuiManager::Initialize();
 	viewProjection.Initialize();
 	WorldTransform::SetViewProjection(&viewProjection);
-	FbxLoader::Initialize();
 	postEffect = std::make_unique<PostEffect>();
 	postEffect->Initialize();
 }
