@@ -54,6 +54,9 @@
     <Filter Include="ソース ファイル\3d\fbx">
       <UniqueIdentifier>{cd12517d-9b9f-4713-9cbd-76d8ce9c3564}</UniqueIdentifier>
     </Filter>
+    <Filter Include="シェーダー ファイル\fbx">
+      <UniqueIdentifier>{cc1800fd-a70d-44fc-b98a-fae5bca084db}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Sprite.hlsli">
@@ -67,6 +70,9 @@
     </None>
     <None Include="Resources\shaders\Particle.hlsli">
       <Filter>シェーダー ファイル\particle</Filter>
+    </None>
+    <None Include="Resources\shaders\FBX.hlsli">
+      <Filter>シェーダー ファイル\fbx</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -96,6 +102,12 @@
     </FxCompile>
     <FxCompile Include="Resources\shaders\ParticleVS.hlsl">
       <Filter>シェーダー ファイル\particle</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\shaders\FBXPS.hlsl">
+      <Filter>シェーダー ファイル\fbx</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\shaders\FBXVS.hlsl">
+      <Filter>シェーダー ファイル\fbx</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
