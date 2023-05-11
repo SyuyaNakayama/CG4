@@ -1,6 +1,197 @@
 #include "FbxModel.h"
 #include "D3D12Common.h"
 #include "SpriteCommon.h"
+using namespace DirectX;
+
+const std::string FbxModel::BASE_DIRECTORY = "Resources/fbx/";
+const std::string FbxModel::DEFAULT_TEXTURE_FILE_NAME = "white1x1.png";
+
+Vector3 FbxDouble3ToVector3(const FbxDouble3& num1)
+{
+	return Vector3((float)num1[0], (float)num1[1], (float)num1[2]);
+}
+Vector3 FbxDouble4ToVector3(const FbxDouble4& num1)
+{
+	return Vector3((float)num1[0], (float)num1[1], (float)num1[2]);
+}
+
+void FbxModel::ParseNodeRecursive(FbxNode* fbxNode, Node* parent)
+{
+	nodes.emplace_back();
+	Node& node = nodes.back();
+	node.name = fbxNode->GetName();
+
+	FbxDouble3 rotation = fbxNode->LclRotation.Get(),
+		scaling = fbxNode->LclScaling.Get(),
+		translation = fbxNode->LclTranslation.Get();
+
+	node.rotation = FbxDouble3ToVector3(rotation) * PI / 180.0f;
+	node.scaling = FbxDouble3ToVector3(scaling);
+	node.translation = FbxDouble3ToVector3(translation);
+
+	Matrix4 matScaling = Matrix4::Scale(node.scaling),
+		matRotation = Matrix4::Rotate(node.rotation),
+		matTranslation = Matrix4::Translate(node.translation);
+
+	node.globalTransform = node.transform = matScaling * matRotation * matTranslation;
+
+	if (parent)
+	{
+		node.parent = parent;
+		node.globalTransform *= parent->globalTransform;
+	}
+
+	FbxNodeAttribute* fbxNodeAttribute = fbxNode->GetNodeAttribute();
+
+	if (fbxNodeAttribute)
+	{
+		if (fbxNodeAttribute->GetAttributeType() == FbxNodeAttribute::eMesh)
+		{
+			meshNode = &node;
+			ParseMesh(fbxNode);
+		}
+	}
+
+	for (size_t i = 0; i < fbxNode->GetChildCount(); i++)
+	{
+		ParseNodeRecursive(fbxNode->GetChild(i), &node);
+	}
+}
+
+void FbxModel::ParseMesh(FbxNode* fbxNode)
+{
+	FbxMesh* fbxMesh = fbxNode->GetMesh();
+
+	ParseMeshVertices(fbxMesh);
+	ParseMeshFaces(fbxMesh);
+	ParseMaterial(fbxNode);
+}
+
+std::string FbxModel::ExtractFileName(const string& PATH)
+{
+	size_t pos1 = PATH.rfind('\\');
+	if (pos1 != string::npos) { return PATH.substr(pos1 + 1, PATH.size() - pos1 - 1); }
+
+	pos1 = PATH.rfind('/');
+	if (pos1 != string::npos) { return PATH.substr(pos1 + 1, PATH.size() - pos1 - 1); }
+
+	return PATH;
+}
+
+void FbxModel::ParseMeshVertices(FbxMesh* fbxMesh)
+{
+	const int CONTROL_POINTS_COUNT = fbxMesh->GetControlPointsCount();
+
+	FbxModel::VertexPosNormalUv vert{};
+	vertices.resize(CONTROL_POINTS_COUNT, vert);
+
+	FbxVector4* pCoord = fbxMesh->GetControlPoints();
+
+	for (size_t i = 0; i < CONTROL_POINTS_COUNT; i++)
+	{
+		FbxModel::VertexPosNormalUv& vertex = vertices[i];
+		vertex.pos = FbxDouble4ToVector3(pCoord[i]);
+	}
+}
+
+void FbxModel::ParseMeshFaces(FbxMesh* fbxMesh)
+{
+	assert(indices.size() == 0);
+
+	const int POLYGON_COUNT = fbxMesh->GetPolygonCount();
+	const int TEXTURE_UV_COUNT = fbxMesh->GetTextureUVCount();
+
+	FbxStringList uvNames;
+	fbxMesh->GetUVSetNames(uvNames);
+
+	for (size_t i = 0; i < POLYGON_COUNT; i++)
+	{
+		const int POLYGON_SIZE = fbxMesh->GetPolygonSize(i);
+		assert(POLYGON_SIZE <= 4);
+
+		for (size_t j = 0; j < POLYGON_SIZE; j++)
+		{
+			int index = fbxMesh->GetPolygonVertex(i, j);
+			assert(index >= 0);
+
+			FbxModel::VertexPosNormalUv& vertex = vertices[index];
+			FbxVector4 normal;
+			if (fbxMesh->GetPolygonVertexNormal(i, j, normal))
+			{
+				vertex.normal = FbxDouble4ToVector3(normal);
+			}
+
+			if (TEXTURE_UV_COUNT > 0)
+			{
+				FbxVector2 uvs;
+				bool lUnmappedUV;
+
+				if (fbxMesh->GetPolygonVertexUV(i, j, uvNames[0], uvs, lUnmappedUV))
+				{
+					vertex.uv.x = (float)uvs[0];
+					vertex.uv.y = (float)uvs[1];
+				}
+			}
+
+			if (j < 3) { indices.push_back(index); }
+			else
+			{
+				int index2 = indices[indices.size() - 1];
+				int index3 = index;
+				int index0 = indices[indices.size() - 3];
+				indices.push_back(index2);
+				indices.push_back(index3);
+				indices.push_back(index0);
+			}
+		}
+	}
+}
+
+void FbxModel::ParseMaterial(FbxNode* fbxNode)
+{
+	const int MATERIAL_COUNT = fbxNode->GetMaterialCount();
+	if (MATERIAL_COUNT > 0)
+	{
+		FbxSurfaceMaterial* material = fbxNode->GetMaterial(0);
+		bool textureLoaded = false;
+
+		if (material)
+		{
+			if (material->GetClassId().Is(FbxSurfaceLambert::ClassId))
+			{
+				FbxSurfaceLambert* lambert = static_cast<FbxSurfaceLambert*>(material);
+				ambient = FbxDouble3ToVector3(lambert->Ambient);
+				diffuse = FbxDouble3ToVector3(lambert->Diffuse);
+			}
+
+			const FbxProperty DIFFUSE_PROPERTY = material->FindProperty(FbxSurfaceMaterial::sDiffuse);
+			if (DIFFUSE_PROPERTY.IsValid())
+			{
+				const FbxFileTexture* TEXTURE = DIFFUSE_PROPERTY.GetSrcObject<FbxFileTexture>();
+				if (TEXTURE)
+				{
+					const char* FILEPATH = TEXTURE->GetFileName();
+					string path_str(FILEPATH);
+					string name = ExtractFileName(path_str);
+					LoadTexture(BASE_DIRECTORY + this->name + "/" + name);
+					textureLoaded = true;
+				}
+			}
+		}
+
+		if (!textureLoaded) { LoadTexture(BASE_DIRECTORY + DEFAULT_TEXTURE_FILE_NAME); }
+	}
+}
+
+void FbxModel::LoadTexture(const string& FULLPATH)
+{
+	HRESULT result = S_FALSE;
+
+	wchar_t wfilepath[128];
+	MultiByteToWideChar(CP_ACP, 0, FULLPATH.c_str(), -1, wfilepath, _countof(wfilepath));
+	result = LoadFromWICFile(wfilepath, WIC_FLAGS_NONE, &metadata, scratchImg);
+	assert(SUCCEEDED(result));
+}
 
 void FbxModel::CreateBuffers()
 {
@@ -47,7 +238,7 @@ void FbxModel::CreateBuffers()
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
 
-	device->CreateShaderResourceView(texBuff.Get(), &srvDesc, 
+	device->CreateShaderResourceView(texBuff.Get(), &srvDesc,
 		SpriteCommon::GetDescriptorHeap()->GetCPUDescriptorHandleForHeapStart());
 }
 
