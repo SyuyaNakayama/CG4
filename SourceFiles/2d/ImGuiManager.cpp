@@ -26,7 +26,7 @@ void ImGuiManager::Initialize()
 
 	ImGui_ImplDX12_Init(dxCommon->GetDevice(),
 		static_cast<int>(dxCommon->GetBackBufferCount()),
-		DXGI_FORMAT_R8G8B8A8_UNORM, srvHeap,
+		DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, srvHeap,
 		srvHandle, srvGpuHandle);
 
 	spCommon->IncrementTextureIndex();

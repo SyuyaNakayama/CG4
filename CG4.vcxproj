@@ -67,7 +67,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)SourceFiles\2d;$(ProjectDir)SourceFiles\3d;$(ProjectDir)SourceFiles\base;$(ProjectDir)SourceFiles\engine;$(ProjectDir)SourceFiles\functions;$(ProjectDir)SourceFiles\light;$(ProjectDir)SourceFiles\math;$(ProjectDir)SourceFiles\scene;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)SourceFiles\2d;$(ProjectDir)SourceFiles\3d;$(ProjectDir)SourceFiles\base;$(ProjectDir)SourceFiles\engine;$(ProjectDir)SourceFiles\functions;$(ProjectDir)SourceFiles\light;$(ProjectDir)SourceFiles\math;$(ProjectDir)SourceFiles\scene;$(ProjectDir)SourceFiles\3d\fbx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
@@ -91,7 +91,7 @@
       <ExceptionHandling>Sync</ExceptionHandling>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)SourceFiles\2d;$(ProjectDir)SourceFiles\3d;$(ProjectDir)SourceFiles\base;$(ProjectDir)SourceFiles\engine;$(ProjectDir)SourceFiles\functions;$(ProjectDir)SourceFiles\light;$(ProjectDir)SourceFiles\math;$(ProjectDir)SourceFiles\scene;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)SourceFiles\2d;$(ProjectDir)SourceFiles\3d;$(ProjectDir)SourceFiles\base;$(ProjectDir)SourceFiles\engine;$(ProjectDir)SourceFiles\functions;$(ProjectDir)SourceFiles\light;$(ProjectDir)SourceFiles\math;$(ProjectDir)SourceFiles\scene;$(ProjectDir)SourceFiles\3d\fbx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
@@ -165,6 +165,9 @@
     <ClCompile Include="SourceFiles\2d\Sprite.cpp" />
     <ClCompile Include="SourceFiles\2d\SpriteCommon.cpp" />
     <ClCompile Include="SourceFiles\3d\DebugCamera.cpp" />
+    <ClCompile Include="SourceFiles\3d\fbx\FbxLoader.cpp" />
+    <ClCompile Include="SourceFiles\3d\fbx\FbxModel.cpp" />
+    <ClCompile Include="SourceFiles\3d\fbx\FbxObject3d.cpp" />
     <ClCompile Include="SourceFiles\3d\Mesh.cpp" />
     <ClCompile Include="SourceFiles\3d\Model.cpp" />
     <ClCompile Include="SourceFiles\3d\ViewProjection.cpp" />
@@ -194,6 +197,9 @@
     <ClInclude Include="SourceFiles\2d\Sprite.h" />
     <ClInclude Include="SourceFiles\2d\SpriteCommon.h" />
     <ClInclude Include="SourceFiles\3d\DebugCamera.h" />
+    <ClInclude Include="SourceFiles\3d\fbx\FbxLoader.h" />
+    <ClInclude Include="SourceFiles\3d\fbx\FbxModel.h" />
+    <ClInclude Include="SourceFiles\3d\fbx\FbxObject3d.h" />
     <ClInclude Include="SourceFiles\3d\Mesh.h" />
     <ClInclude Include="SourceFiles\3d\Model.h" />
     <ClInclude Include="SourceFiles\3d\ViewProjection.h" />
