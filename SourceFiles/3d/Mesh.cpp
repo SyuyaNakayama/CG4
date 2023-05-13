@@ -37,11 +37,9 @@ void Mesh::CreateBuffers()
 
 	// 定数バッファ生成
 	CreateBuffer(&constBuffer, &constMap, (sizeof(ConstBufferData) + 0xff) & ~0xff);
-
-	constMap->ambient = material.ambient;
-	constMap->diffuse = material.diffuse;
-	constMap->specular = material.specular;
-	constMap->alpha = material.alpha;
+	CreateBuffer(&constBuffer2, &constMap2, (sizeof(ConstBufferData) + 0xff) & ~0xff);
+	// 定数バッファにデータ転送
+	TransferConstBufferData();
 }
 
 void Mesh::CalculateSmoothedVertexNormals()
@@ -203,16 +201,27 @@ void Mesh::Update()
 		vertMap[i].color = sprite->GetColor();
 	}
 
+	TransferConstBufferData();
+}
+
+void Mesh::TransferConstBufferData()
+{
 	constMap->ambient = material.ambient;
 	constMap->diffuse = material.diffuse;
 	constMap->specular = material.specular;
 	constMap->alpha = material.alpha;
+
+	constMap2->isToon = isToon;
+	constMap2->isUseRim = isUseRim;
+	constMap2->rimPower = rimPower;
+	constMap2->isRimSeparate = isRimSeparate;
 }
 
 void Mesh::Draw()
 {
 	ID3D12GraphicsCommandList* cmdList = DirectXCommon::GetInstance()->GetCommandList();
 	cmdList->SetGraphicsRootConstantBufferView(2, constBuffer->GetGPUVirtualAddress());
+	cmdList->SetGraphicsRootConstantBufferView(5, constBuffer2->GetGPUVirtualAddress());
 	// 頂点バッファの設定
 	cmdList->IASetVertexBuffers(0, 1, &vbView);
 	// インデックスバッファの設定

@@ -3,14 +3,6 @@ cbuffer cbuff0 : register(b0)
 	matrix world; // ワールド行列
 };
 
-cbuffer cbuff3 : register(b3)
-{
-	matrix viewproj; // ビュープロジェクション行列
-	float3 cameraPos; // カメラ座標(ワールド座標)
-	uint toonshade;
-	uint rimlight;
-};
-
 cbuffer cbuff1 : register(b1)
 {
 	float3 m_ambient  : packoffset(c0); // アンビエント係数
@@ -67,6 +59,20 @@ cbuffer cbuff2 : register(b2)
 	SpotLight spotLights[SPOTLIGHT_NUM];
 	CircleShadow circleShadows[CIRCLESHADOW_NUM];
 }
+
+cbuffer cbuff3 : register(b3)
+{
+	matrix viewproj; // ビュープロジェクション行列
+	float3 cameraPos; // カメラ座標(ワールド座標)
+};
+
+cbuffer cbuff4 : register(b4)
+{
+	uint toonshade; // トゥーンシェーディングするか
+	uint rimlight; // リムライトを使うか
+	float rimpower; // リムライトの強さ
+	uint rimseparate; // リムライトで輪郭を表現する
+};
 
 // 頂点シェーダーからピクセルシェーダーへのやり取りに使用する構造体
 struct VSOutput

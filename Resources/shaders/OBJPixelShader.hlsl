@@ -8,6 +8,14 @@ float4 ToonShading(float4 color)
 	return smoothstep(0.28f, 0.32f, color);
 }
 
+float4 RimLight(float3 eyedir,float3 normal,float3 lightcolor)
+{
+	float rim = 1.0 - saturate(dot(normalize(eyedir), normal));
+	float emission = lightcolor * pow(rim, rimpower);
+	if (rimseparate) { emission = step(0.3f, emission); }
+	return emission;
+}
+
 float4 main(VSOutput input) : SV_TARGET
 {
 	// テクスチャマッピング
@@ -114,15 +122,10 @@ float4 main(VSOutput input) : SV_TARGET
 	}
 
 	shadecolor.a = m_alpha;
-	//float4 toonShadecolor = (ToonShading(shadecolor));
-	//return toonShadecolor +float4(ambientColor * ambient, m_alpha) * texcolor;
-	//float rim = dot(input.normal, eyedir);
-	const float rimPower = 5.0f;
-	float rim = 1.0 - saturate(dot(normalize(eyedir), input.normal));
-	float emission = dirLights[0].lightcolor.rgb * pow(rim, rimPower);
-	//if (rim < 0.3)
-	//{
-	//	return float4(dirLights[i].lightcolor, m_alpha);
-	//}
-	return shadecolor + float4(ambientColor * ambient, m_alpha) * texcolor+ step(0.3f,emission);
+	if (toonshade) { return ToonShading(shadecolor) + float4(ambientColor * ambient, m_alpha) * texcolor; }
+	if (rimlight)
+	{
+		shadecolor += RimLight(eyedir,input.normal,dirLights[0].lightcolor.rgb);
+	}
+	return shadecolor + float4(ambientColor * ambient, m_alpha) * texcolor;
 }
