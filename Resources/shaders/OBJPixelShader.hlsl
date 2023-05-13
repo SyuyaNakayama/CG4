@@ -3,10 +3,15 @@
 Texture2D<float4> tex : register(t0);  // 0番スロットに設定されたテクスチャ
 SamplerState smp : register(s0);      // 0番スロットに設定されたサンプラー
 
+float4 ToonShading(float4 color)
+{
+	return smoothstep(0.28f, 0.32f, color);
+}
+
 float4 main(VSOutput input) : SV_TARGET
 {
 	// テクスチャマッピング
-	float4 texcolor = tex.Sample(smp, input.uv);
+	float4 texcolor = tex.Sample(smp, input.uv) * input.spriteColor;
 	// 光沢度
 	const float shininess = 20.0f;
 	// 頂点から視点への方向ベクトル
@@ -14,7 +19,7 @@ float4 main(VSOutput input) : SV_TARGET
 	// 環境反射光
 	float3 ambient = m_ambient;
 	// シェーディングによる色
-	float4 shadecolor = float4(ambientColor * ambient,m_alpha);
+	float4 shadecolor = float4(0,0,0,0);
 	// 平行光源
 	for (int i = 0; i < DIRLIGHT_NUM; i++)
 	{
@@ -28,7 +33,7 @@ float4 main(VSOutput input) : SV_TARGET
 		// 鏡面反射光
 		float3 specular = pow(saturate(dot(reflect, eyedir)), shininess) * m_specular;
 		// 全て加算する
-		shadecolor.rgb += (diffuse + specular) * dirLights[i].lightcolor;
+		shadecolor.rgb += (diffuse * texcolor + specular) * dirLights[i].lightcolor;
 	}
 	// 点光源
 	for (int i = 0; i < POINTLIGHT_NUM; i++)
@@ -109,5 +114,15 @@ float4 main(VSOutput input) : SV_TARGET
 	}
 
 	shadecolor.a = m_alpha;
-	return shadecolor * texcolor * input.spriteColor;
+	//float4 toonShadecolor = (ToonShading(shadecolor));
+	//return toonShadecolor +float4(ambientColor * ambient, m_alpha) * texcolor;
+	//float rim = dot(input.normal, eyedir);
+	const float rimPower = 5.0f;
+	float rim = 1.0 - saturate(dot(normalize(eyedir), input.normal));
+	float emission = dirLights[0].lightcolor.rgb * pow(rim, rimPower);
+	//if (rim < 0.3)
+	//{
+	//	return float4(dirLights[i].lightcolor, m_alpha);
+	//}
+	return shadecolor + float4(ambientColor * ambient, m_alpha) * texcolor+ step(0.3f,emission);
 }

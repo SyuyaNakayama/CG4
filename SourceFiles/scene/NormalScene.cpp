@@ -4,11 +4,12 @@
 
 void NormalScene::Initialize()
 {
-	debugCamera.Initialize();
+	debugCamera.Initialize({},10);
 	WorldTransform::SetViewProjection(&debugCamera.GetViewProjection());
+	LightGroup* lightGroup = Model::GetLightGroup();
 	for (size_t i = 1; i < 3; i++)
 	{
-		Model::GetLightGroup()->SetDirLightActive(i, false);
+		lightGroup->SetDirLightActive(i, false);
 	}
 	sphere = Model::Create("sphere", true);
 	sphere->GetSprite()->SetColor({ 1,0,0,1 });

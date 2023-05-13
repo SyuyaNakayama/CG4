@@ -7,6 +7,8 @@ cbuffer cbuff3 : register(b3)
 {
 	matrix viewproj; // ビュープロジェクション行列
 	float3 cameraPos; // カメラ座標(ワールド座標)
+	uint toonshade;
+	uint rimlight;
 };
 
 cbuffer cbuff1 : register(b1)
