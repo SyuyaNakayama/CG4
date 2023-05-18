@@ -43,7 +43,7 @@ FbxModel* FbxLoader::LoadModelFromFile(const string& modelName)
 	model->nodes.reserve(nodeCount);
 
 	model->ParseNodeRecursive(fbxScene->GetRootNode());
-	fbxScene->Destroy();
+	model->fbxScene = fbxScene;
 
 	model->CreateBuffers();
 

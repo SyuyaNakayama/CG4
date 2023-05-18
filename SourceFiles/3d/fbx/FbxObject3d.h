@@ -8,12 +8,19 @@ protected: // エイリアス
 	// Microsoft::WRL::を省略
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 public: // サブクラス
+	static const int MAX_BONES = 32;
+	
 	// 定数バッファ用データ構造体（座標変換行列用）
 	struct ConstBufferData
 	{
 		Matrix4 viewproj;    // ビュープロジェクション行列
 		Matrix4 world; // ワールド行列
 		Vector3 cameraPos; // カメラ座標（ワールド座標）
+	};
+
+	struct ConstBufferDataSkin
+	{
+		Matrix4 bones[MAX_BONES];
 	};
 
 public: // 静的メンバ関数
@@ -46,8 +53,9 @@ public: // メンバ関数
 
 protected: // メンバ変数
 	// 定数バッファ
-	ComPtr<ID3D12Resource> constBuff;
+	ComPtr<ID3D12Resource> constBuff, constBuffSkin;
 	ConstBufferData* constMap = nullptr;
+	ConstBufferDataSkin* constMapSkin = nullptr;
 	WorldTransform* worldTransform;
 	// モデル
 	FbxModel* model = nullptr;

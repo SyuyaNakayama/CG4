@@ -16,6 +16,10 @@ void FbxObject3d::CreateGraphicsPipeline()
 	pManager.AddInputLayout("POSITION", DXGI_FORMAT_R32G32B32_FLOAT);
 	pManager.AddInputLayout("NORMAL", DXGI_FORMAT_R32G32B32_FLOAT);
 	pManager.AddInputLayout("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT);
+	// 影響を受けるボーン番号(4つ)
+	pManager.AddInputLayout("BONEINDICES", DXGI_FORMAT_R32G32B32A32_UINT);
+	// ボーンのスキンウェイト(4つ)
+	pManager.AddInputLayout("BONEWEIGHTS", DXGI_FORMAT_R32G32B32A32_FLOAT);
 	// レンダーターゲットのブレンド設定
 	pManager.SetBlendDesc(D3D12_BLEND_OP_ADD, D3D12_BLEND_SRC_ALPHA, D3D12_BLEND_INV_SRC_ALPHA);
 	// デプスステンシルステート
@@ -27,6 +31,7 @@ void FbxObject3d::CreateGraphicsPipeline()
 	// ルートパラメータ
 	pManager.AddRootParameter(PipelineManager::RootParamType::CBV); // CBV（座標変換行列用）
 	pManager.AddRootParameter(PipelineManager::RootParamType::DescriptorTable); // SRV（テクスチャ）
+	pManager.AddRootParameter(PipelineManager::RootParamType::CBV); // SRV（テクスチャ）
 	// グラフィックスパイプラインの生成
 	pManager.CreatePipeline(pipelinestate, rootsignature);
 }
@@ -39,6 +44,15 @@ void FbxObject3d::Initialize(WorldTransform* worldTransform, FbxModel* model)
 	this->worldTransform = worldTransform;
 	this->worldTransform->Initialize();
 	this->model = model;
+
+	CreateBuffer(&constBuffSkin, &constMapSkin, (sizeof(ConstBufferData) + 0xff) & ~0xff);
+	std::vector<FbxModel::Bone>& bones = model->GetBones();
+	for (int i = 0; i < bones.size(); i++)
+	{
+		Matrix4 matCurrentPose; FbxAMatrix fbxCurrentPose = bones[i].fbxCluster->GetLink()->EvaluateGlobalTransform(0);
+		FbxModel::ConvertMatrixFromFbx(&matCurrentPose, fbxCurrentPose);
+		constMapSkin->bones[i] = bones[i].invInitialPose * matCurrentPose;
+	}
 }
 
 void FbxObject3d::Update()
@@ -66,6 +80,7 @@ void FbxObject3d::Draw()
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	// 定数バッファビューをセット
 	cmdList->SetGraphicsRootConstantBufferView(0, constBuff->GetGPUVirtualAddress());
+	cmdList->SetGraphicsRootConstantBufferView(2, constBuffSkin->GetGPUVirtualAddress());
 
 	// モデル描画
 	model->Draw();

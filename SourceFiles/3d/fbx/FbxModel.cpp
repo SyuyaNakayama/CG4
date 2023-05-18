@@ -1,10 +1,24 @@
+#pragma push
+#pragma warning(disable:26495)
+#pragma warning(disable:26451)
 #include "FbxModel.h"
+#pragma pop
 #include "D3D12Common.h"
 #include "SpriteCommon.h"
 using namespace DirectX;
 
-const std::string FbxModel::BASE_DIRECTORY = "Resources/fbx/";
+const std::string FbxModel::BASE_DIRECTORY = "Resources/";
 const std::string FbxModel::DEFAULT_TEXTURE_FILE_NAME = "white1x1.png";
+
+void FbxModel::ConvertMatrixFromFbx(Matrix4* dst, const FbxAMatrix& src)
+{
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++)
+		{
+			dst->m[i][j] = (float)src.Get(i, j);
+		}
+	}
+}
 
 Vector3 FbxDouble3ToVector3(const FbxDouble3& num1)
 {
@@ -65,6 +79,7 @@ void FbxModel::ParseMesh(FbxNode* fbxNode)
 	ParseMeshVertices(fbxMesh);
 	ParseMeshFaces(fbxMesh);
 	ParseMaterial(fbxNode);
+	ParseSkin(fbxMesh);
 }
 
 std::string FbxModel::ExtractFileName(const string& PATH)
@@ -82,14 +97,14 @@ void FbxModel::ParseMeshVertices(FbxMesh* fbxMesh)
 {
 	const int CONTROL_POINTS_COUNT = fbxMesh->GetControlPointsCount();
 
-	FbxModel::VertexPosNormalUv vert{};
+	FbxModel::VertexPosNormalUvSkin vert{};
 	vertices.resize(CONTROL_POINTS_COUNT, vert);
 
 	FbxVector4* pCoord = fbxMesh->GetControlPoints();
 
 	for (size_t i = 0; i < CONTROL_POINTS_COUNT; i++)
 	{
-		FbxModel::VertexPosNormalUv& vertex = vertices[i];
+		FbxModel::VertexPosNormalUvSkin& vertex = vertices[i];
 		vertex.pos = FbxDouble4ToVector3(pCoord[i]);
 	}
 }
@@ -114,7 +129,7 @@ void FbxModel::ParseMeshFaces(FbxMesh* fbxMesh)
 			int index = fbxMesh->GetPolygonVertex(i, j);
 			assert(index >= 0);
 
-			FbxModel::VertexPosNormalUv& vertex = vertices[index];
+			FbxModel::VertexPosNormalUvSkin& vertex = vertices[index];
 			FbxVector4 normal;
 			if (fbxMesh->GetPolygonVertexNormal(i, j, normal))
 			{
@@ -173,7 +188,7 @@ void FbxModel::ParseMaterial(FbxNode* fbxNode)
 					const char* FILEPATH = TEXTURE->GetFileName();
 					string path_str(FILEPATH);
 					string name = ExtractFileName(path_str);
-					LoadTexture(BASE_DIRECTORY + this->name + "/" + name);
+					LoadTexture(BASE_DIRECTORY + "fbx/" + this->name + "/" + name);
 					textureLoaded = true;
 				}
 			}
@@ -193,10 +208,90 @@ void FbxModel::LoadTexture(const string& FULLPATH)
 	assert(SUCCEEDED(result));
 }
 
+void FbxModel::ParseSkin(FbxMesh* fbxMesh)
+{
+	FbxSkin* fbxSkin = static_cast<FbxSkin*>(fbxMesh->GetDeformer(0, FbxDeformer::eSkin));
+	if (fbxSkin == nullptr) { return; }
+
+	int clusterCount = fbxSkin->GetClusterCount();
+	bones.reserve(clusterCount);
+
+	for (int i = 0; i < clusterCount; i++)
+	{
+		FbxCluster* fbxCluster = fbxSkin->GetCluster(i);
+
+		const char* boneName = fbxCluster->GetLink()->GetName();
+
+		bones.emplace_back(FbxModel::Bone(boneName));
+		FbxModel::Bone& bone = bones.back();
+		bone.fbxCluster = fbxCluster;
+
+		FbxAMatrix fbxMat;
+		fbxCluster->GetTransformLinkMatrix(fbxMat);
+
+		Matrix4 initialPose;
+		ConvertMatrixFromFbx(&initialPose, fbxMat);
+
+		bone.invInitialPose = Matrix4::Inverse(initialPose);
+	}
+
+	struct WeightSet
+	{
+		UINT index;
+		float weight;
+	};
+
+	std::vector<std::list<WeightSet>> weightLists(vertices.size());
+
+	for (size_t i = 0; i < clusterCount; i++)
+	{
+		FbxCluster* fbxCluster = fbxSkin->GetCluster(i);
+
+		int controlPointIndicesCount = fbxCluster->GetControlPointIndicesCount();
+		int* controlPointIndices = fbxCluster->GetControlPointIndices();
+		double* controlPointWeights = fbxCluster->GetControlPointWeights();
+
+		for (int j = 0; j < controlPointIndicesCount; j++)
+		{
+			int vertIndex = controlPointIndices[j];
+			float weight = (float)controlPointWeights[j];
+
+			weightLists[vertIndex].emplace_back(WeightSet{ (UINT)i,weight });
+		}
+	}
+
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		auto& weightList = weightLists[i];
+
+		weightList.sort([](auto const& lhs, auto const rhs) {return lhs.weight > rhs.weight; });
+
+		int weightArrayIndex = 0;
+
+		for (auto& weightSet : weightList)
+		{
+			vertices[i].boneIndex[weightArrayIndex] = weightSet.index;
+			vertices[i].boneWeight[weightArrayIndex] = weightSet.weight;
+
+			if (++weightArrayIndex >= FbxModel::MAX_BONE_INDICES)
+			{
+				float weight = 0.0f;
+
+				for (int j = 0; j < FbxModel::MAX_BONE_INDICES; j++)
+				{
+					weight += vertices[i].boneWeight[j] = 1.0f - weight;
+				}
+				vertices[i].boneWeight[0] = 1.0f - weight;
+				break;
+			}
+		}
+	}
+}
+
 void FbxModel::CreateBuffers()
 {
 #pragma region 頂点バッファ設定
-	UINT sizeVB = static_cast<UINT>(sizeof(VertexPosNormalUv) * vertices.size());
+	UINT sizeVB = static_cast<UINT>(sizeof(VertexPosNormalUvSkin) * vertices.size());
 	CreateBuffer(&vertBuff, &vertMap, sizeVB);
 	std::copy(vertices.begin(), vertices.end(), vertMap);
 

@@ -7,7 +7,7 @@ void NormalScene::Initialize()
 	debugCamera.Initialize();
 	WorldTransform::SetViewProjection(&debugCamera.GetViewProjection());
 	FbxObject3d::CreateGraphicsPipeline();
-	fbxModel_ = FbxLoader::LoadModelFromFile("cube");
+	fbxModel_ = FbxLoader::LoadModelFromFile("boneTest");
 	fbxObject_ = new FbxObject3d;
 	fbxObject_->Initialize(&fbxObjWT, fbxModel_);
 }
