@@ -264,7 +264,7 @@ void FbxModel::ParseSkin(FbxMesh* fbxMesh)
 	{
 		auto& weightList = weightLists[i];
 
-		weightList.sort([](auto const& lhs, auto const rhs) {return lhs.weight > rhs.weight; });
+		weightList.sort([](auto const& lhs, auto const rhs) { return lhs.weight > rhs.weight; });
 
 		int weightArrayIndex = 0;
 
@@ -277,9 +277,9 @@ void FbxModel::ParseSkin(FbxMesh* fbxMesh)
 			{
 				float weight = 0.0f;
 
-				for (int j = 0; j < FbxModel::MAX_BONE_INDICES; j++)
+				for (int j = 1; j < FbxModel::MAX_BONE_INDICES; j++)
 				{
-					weight += vertices[i].boneWeight[j] = 1.0f - weight;
+					weight += vertices[i].boneWeight[j];
 				}
 				vertices[i].boneWeight[0] = 1.0f - weight;
 				break;

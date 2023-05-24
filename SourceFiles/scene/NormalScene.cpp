@@ -10,6 +10,7 @@ void NormalScene::Initialize()
 	fbxModel_ = FbxLoader::LoadModelFromFile("boneTest");
 	fbxObject_ = new FbxObject3d;
 	fbxObject_->Initialize(&fbxObjWT, fbxModel_);
+	fbxObject_->PlayAnimation();
 }
 
 void NormalScene::Update()

@@ -4,10 +4,10 @@
 
 class FbxObject3d
 {
-protected: // エイリアス
-	// Microsoft::WRL::を省略
+protected:
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
-public: // サブクラス
+
+public:
 	static const int MAX_BONES = 32;
 	
 	// 定数バッファ用データ構造体（座標変換行列用）
@@ -22,20 +22,30 @@ public: // サブクラス
 	{
 		Matrix4 bones[MAX_BONES];
 	};
-
-public: // 静的メンバ関数
-	/// <summary>
-	/// グラフィックパイプラインの生成
-	/// </summary>
-	static void CreateGraphicsPipeline();
-
+	
 private: // 静的メンバ変数
 	// ルートシグネチャ
 	static ComPtr<ID3D12RootSignature> rootsignature;
 	// パイプラインステートオブジェクト
 	static ComPtr<ID3D12PipelineState> pipelinestate;
 
-public: // メンバ関数
+protected: // メンバ変数
+	// 定数バッファ
+	ComPtr<ID3D12Resource> constBuff, constBuffSkin;
+	ConstBufferData* constMap = nullptr;
+	ConstBufferDataSkin* constMapSkin = nullptr;
+	WorldTransform* worldTransform;
+	// モデル
+	FbxModel* model = nullptr;
+	FbxTime frameTime, startTime, endTime, currentTime;
+	bool isPlay = false;
+
+public:
+	/// <summary>
+	/// グラフィックパイプラインの生成
+	/// </summary>
+	static void CreateGraphicsPipeline();
+
 	/// <summary>
 	/// 初期化
 	/// </summary>
@@ -51,13 +61,6 @@ public: // メンバ関数
 	/// </summary>
 	void Draw();
 
-protected: // メンバ変数
-	// 定数バッファ
-	ComPtr<ID3D12Resource> constBuff, constBuffSkin;
-	ConstBufferData* constMap = nullptr;
-	ConstBufferDataSkin* constMapSkin = nullptr;
-	WorldTransform* worldTransform;
-	// モデル
-	FbxModel* model = nullptr;
+	void PlayAnimation();
 };
 

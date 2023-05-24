@@ -76,14 +76,13 @@ private:
 
 public:
 	friend class FbxLoader;
-	~FbxModel() { fbxScene->Destroy(); }
 
+	~FbxModel() { fbxScene->Destroy(); }
 	static void ConvertMatrixFromFbx(Matrix4* dst, const FbxAMatrix& src);
 	void ParseNodeRecursive(FbxNode* fbxNode, Node* parent = nullptr);
 	void CreateBuffers();
 	void Draw();
 	vector<Bone>& GetBones() { return bones; }
 	FbxScene* GetFbxScene() { return fbxScene; }
-
 	const Matrix4& GetModelTransform() { return meshNode->globalTransform; }
 };

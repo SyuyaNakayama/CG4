@@ -15,9 +15,9 @@ cbuffer skinning : register(b1)
 //バーテックスバッファーの入力
 struct VSInput
 {
-	float4 pos	: POSITION;//位置   
-	float3 normal : NORMAL;//頂点法線
-	float2 uv	: TEXCOORD;//テクスチャー座標
+	float4 pos	: POSITION; // 位置   
+	float3 normal : NORMAL; // 頂点法線
+	float2 uv	: TEXCOORD; // テクスチャー座標
 	uint4 boneIndices : BONEINDICES;
 	float4 boneWeights : BONEWEIGHTS;
 };
@@ -26,6 +26,6 @@ struct VSInput
 struct VSOutput
 {
 	float4 svpos : SV_POSITION; // システム用頂点座標
-	float3 normal :NORMAL; // 法線
-	float2 uv  :TEXCOORD; // uv値
+	float3 normal : NORMAL; // 法線
+	float2 uv : TEXCOORD; // uv値
 };

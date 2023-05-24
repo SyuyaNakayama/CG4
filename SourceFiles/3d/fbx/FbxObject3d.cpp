@@ -31,7 +31,7 @@ void FbxObject3d::CreateGraphicsPipeline()
 	// ルートパラメータ
 	pManager.AddRootParameter(PipelineManager::RootParamType::CBV); // CBV（座標変換行列用）
 	pManager.AddRootParameter(PipelineManager::RootParamType::DescriptorTable); // SRV（テクスチャ）
-	pManager.AddRootParameter(PipelineManager::RootParamType::CBV); // SRV（テクスチャ）
+	pManager.AddRootParameter(PipelineManager::RootParamType::CBV);
 	// グラフィックスパイプラインの生成
 	pManager.CreatePipeline(pipelinestate, rootsignature);
 }
@@ -40,19 +40,14 @@ void FbxObject3d::Initialize(WorldTransform* worldTransform, FbxModel* model)
 {
 	// 定数バッファの生成
 	CreateBuffer(&constBuff, &constMap, (sizeof(ConstBufferData) + 0xff) & ~0xff);
+	CreateBuffer(&constBuffSkin, &constMapSkin, (sizeof(ConstBufferDataSkin) + 0xff) & ~0xff);
 
 	this->worldTransform = worldTransform;
 	this->worldTransform->Initialize();
 	this->model = model;
 
-	CreateBuffer(&constBuffSkin, &constMapSkin, (sizeof(ConstBufferData) + 0xff) & ~0xff);
-	std::vector<FbxModel::Bone>& bones = model->GetBones();
-	for (int i = 0; i < bones.size(); i++)
-	{
-		Matrix4 matCurrentPose; FbxAMatrix fbxCurrentPose = bones[i].fbxCluster->GetLink()->EvaluateGlobalTransform(0);
-		FbxModel::ConvertMatrixFromFbx(&matCurrentPose, fbxCurrentPose);
-		constMapSkin->bones[i] = bones[i].invInitialPose * matCurrentPose;
-	}
+	// 1フレーム分の時間を60FPSで設定
+	frameTime.SetTime(0, 0, 0, 1, 0, FbxTime::EMode::eFrames60);
 }
 
 void FbxObject3d::Update()
@@ -60,6 +55,24 @@ void FbxObject3d::Update()
 	// スケール、回転、平行移動行列の計算
 	worldTransform->Update();
 
+	// アニメーション
+	if (isPlay)
+	{
+		// 1フレーム進める
+		currentTime += frameTime;
+		// 最後まで再生したら先頭に戻す
+		if (currentTime > endTime) { currentTime = startTime; }
+	}
+
+	std::vector<FbxModel::Bone>& bones = model->GetBones();
+	for (int i = 0; i < bones.size(); i++)
+	{
+		FbxAMatrix fbxCurrentPose = bones[i].fbxCluster->GetLink()->EvaluateGlobalTransform(currentTime);
+		Matrix4 matCurrentPose;
+		FbxModel::ConvertMatrixFromFbx(&matCurrentPose, fbxCurrentPose);
+		constMapSkin->bones[i] = bones[i].invInitialPose * matCurrentPose;
+	}
+	
 	// 定数バッファへデータ転送
 	constMap->viewproj = WorldTransform::GetViewProjection()->GetViewProjectionMatrix();
 	constMap->world = model->GetModelTransform() * worldTransform->matWorld;
@@ -84,4 +97,23 @@ void FbxObject3d::Draw()
 
 	// モデル描画
 	model->Draw();
+}
+
+void FbxObject3d::PlayAnimation()
+{
+	FbxScene* fbxScene = model->GetFbxScene();
+	// 0番のアニメーション取得
+	FbxAnimStack* animstack=fbxScene->GetSrcObject<FbxAnimStack>(0);
+	// アニメーションの名前取得
+	const char* animstackname = animstack->GetName();
+	// アニメーションの時間取得
+	FbxTakeInfo* takeinfo = fbxScene->GetTakeInfo(animstackname);
+	// 開始時間取得
+	startTime = takeinfo->mLocalTimeSpan.GetStart();
+	// 終了時間取得
+	endTime = takeinfo->mLocalTimeSpan.GetStop();
+	// 開始時間に合わせる
+	currentTime = startTime;
+	// 再生中状態にする
+	isPlay = true;
 }
