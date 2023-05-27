@@ -1,11 +1,6 @@
-#pragma push
-#pragma warning(disable:26495)
-#pragma warning(disable:26451)
 #include "FbxModel.h"
-#pragma pop
 #include "D3D12Common.h"
 #include "SpriteCommon.h"
-using namespace DirectX;
 
 const std::string FbxModel::BASE_DIRECTORY = "Resources/";
 const std::string FbxModel::DEFAULT_TEXTURE_FILE_NAME = "white1x1.png";
@@ -204,14 +199,25 @@ void FbxModel::LoadTexture(const string& FULLPATH)
 
 	wchar_t wfilepath[128];
 	MultiByteToWideChar(CP_ACP, 0, FULLPATH.c_str(), -1, wfilepath, _countof(wfilepath));
-	result = LoadFromWICFile(wfilepath, WIC_FLAGS_NONE, &metadata, scratchImg);
+	result = LoadFromWICFile(wfilepath, DirectX::WIC_FLAGS_NONE, &metadata, scratchImg);
 	assert(SUCCEEDED(result));
 }
 
 void FbxModel::ParseSkin(FbxMesh* fbxMesh)
 {
 	FbxSkin* fbxSkin = static_cast<FbxSkin*>(fbxMesh->GetDeformer(0, FbxDeformer::eSkin));
-	if (fbxSkin == nullptr) { return; }
+	// スキニング情報がなければ終了
+	if (fbxSkin == nullptr) 
+	{
+		// 各頂点についての処理
+		for (int i = 0; i < vertices.size(); i++)
+		{
+			// 最初のボーン(単位行列)の影響100%にする
+			vertices[i].boneIndex[0] = 0;
+			vertices[i].boneWeight[0] = 1.0f;
+		}
+		return; 
+	}
 
 	int clusterCount = fbxSkin->GetClusterCount();
 	bones.reserve(clusterCount);
@@ -243,7 +249,7 @@ void FbxModel::ParseSkin(FbxMesh* fbxMesh)
 
 	std::vector<std::list<WeightSet>> weightLists(vertices.size());
 
-	for (size_t i = 0; i < clusterCount; i++)
+	for (int i = 0; i < clusterCount; i++)
 	{
 		FbxCluster* fbxCluster = fbxSkin->GetCluster(i);
 
@@ -273,17 +279,15 @@ void FbxModel::ParseSkin(FbxMesh* fbxMesh)
 			vertices[i].boneIndex[weightArrayIndex] = weightSet.index;
 			vertices[i].boneWeight[weightArrayIndex] = weightSet.weight;
 
-			if (++weightArrayIndex >= FbxModel::MAX_BONE_INDICES)
-			{
-				float weight = 0.0f;
+			if (++weightArrayIndex < FbxModel::MAX_BONE_INDICES) { continue; }
 
-				for (int j = 1; j < FbxModel::MAX_BONE_INDICES; j++)
-				{
-					weight += vertices[i].boneWeight[j];
-				}
-				vertices[i].boneWeight[0] = 1.0f - weight;
-				break;
+			float weight = 0.0f;
+			for (int j = 1; j < FbxModel::MAX_BONE_INDICES; j++)
+			{
+				weight += vertices[i].boneWeight[j];
 			}
+			vertices[i].boneWeight[0] = 1.0f - weight;
+			break;
 		}
 	}
 }

@@ -46,8 +46,11 @@ void FbxObject3d::Initialize(WorldTransform* worldTransform, FbxModel* model)
 	this->worldTransform->Initialize();
 	this->model = model;
 
+	for (int i = 0; i < MAX_BONES; i++) { constMapSkin->bones[i] = Matrix4::Identity(); }
+
 	// 1フレーム分の時間を60FPSで設定
 	frameTime.SetTime(0, 0, 0, 1, 0, FbxTime::EMode::eFrames60);
+	PlayAnimation();
 }
 
 void FbxObject3d::Update()
@@ -72,7 +75,7 @@ void FbxObject3d::Update()
 		FbxModel::ConvertMatrixFromFbx(&matCurrentPose, fbxCurrentPose);
 		constMapSkin->bones[i] = bones[i].invInitialPose * matCurrentPose;
 	}
-	
+
 	// 定数バッファへデータ転送
 	constMap->viewproj = WorldTransform::GetViewProjection()->GetViewProjectionMatrix();
 	constMap->world = model->GetModelTransform() * worldTransform->matWorld;
@@ -103,7 +106,7 @@ void FbxObject3d::PlayAnimation()
 {
 	FbxScene* fbxScene = model->GetFbxScene();
 	// 0番のアニメーション取得
-	FbxAnimStack* animstack=fbxScene->GetSrcObject<FbxAnimStack>(0);
+	FbxAnimStack* animstack = fbxScene->GetSrcObject<FbxAnimStack>(0);
 	// アニメーションの名前取得
 	const char* animstackname = animstack->GetName();
 	// アニメーションの時間取得

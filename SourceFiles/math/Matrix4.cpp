@@ -128,7 +128,7 @@ Matrix4 Matrix4::Transpose(const Matrix4& mat)
 {
 	Matrix4 ans;
 
-	for (size_t i = 0; i < 4; i++){
+	for (size_t i = 0; i < 4; i++) {
 		for (size_t j = 0; j < 4; j++)
 		{
 			ans.m[i][j] = mat.m[j][i];
@@ -138,33 +138,80 @@ Matrix4 Matrix4::Transpose(const Matrix4& mat)
 	return ans;
 }
 
-Matrix4 Matrix4::Inverse(const Matrix4& mat)
+Matrix4 Matrix4::Inverse(const Matrix4& m)
 {
-	Matrix4 m = mat;
-	Matrix4 inv; // ここに逆行列が入る
+	Matrix4 result;
+	float mat[4][8]{};
 
-	// 掃き出し法
-	for (size_t i = 0; i < 4; i++)
-	{
-		float buf = 1.0f / m.m[i][i]; // 一時的なデータを蓄える
-		for (size_t j = 0; j < 4; j++)
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++)
 		{
-			m.m[i][j] *= buf;
-			inv.m[i][j] *= buf;
-		}
-		for (size_t j = 0; j < 4; j++)
-		{
-			if (i == j) { continue; }
-			buf = m.m[j][i];
-			for (size_t k = 0; k < 4; k++)
-			{
-				m.m[j][k] -= m.m[i][k] * buf;
-				inv.m[j][k] -= inv.m[i][k] * buf;
-			}
+			mat[i][j] = m.m[i][j];
 		}
 	}
 
-	return inv;
+	mat[0][4] = 1;
+	mat[1][5] = 1;
+	mat[2][6] = 1;
+	mat[3][7] = 1;
+
+	for (int n = 0; n < 4; n++) 
+	{
+		// 最大の絶対値を探索する(とりあえず対象成分を最大と仮定しておく)
+		float max = abs(mat[n][n]);
+		int maxIndex = n;
+
+		for (int i = n + 1; i < 4; i++)
+		{
+			if (abs(mat[i][n]) > max) 
+			{
+				max = abs(mat[i][n]);
+				maxIndex = i;
+			}
+		}
+
+		// 最大の絶対値が0だったら逆行列は求められない
+		if (abs(mat[maxIndex][n]) <= 1.0e-6f) 
+		{
+			return result; //とりあえず単位行列返しちゃう
+		}
+
+		// 入れ替え
+		if (n != maxIndex) 
+		{
+			for (int i = 0; i < 8; i++) 
+			{
+				float f = mat[maxIndex][i];
+				mat[maxIndex][i] = mat[n][i];
+				mat[n][i] = f;
+			}
+		}
+
+		// 掛けたら1になる値を算出
+		float mul = 1 / mat[n][n];
+
+		// 掛ける
+		for (int i = 0; i < 8; i++) { mat[n][i] *= mul; }
+
+		// 他全部0にする
+		for (int i = 0; i < 4; i++) 
+		{
+			if (n == i) { continue; }
+
+			float mul = -mat[i][n];
+
+			for (int j = 0; j < 8; j++) { mat[i][j] += mat[n][j] * mul; }
+		}
+	}
+
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) 
+		{
+			result.m[i][j] = mat[i][j + 4];
+		}
+	}
+
+	return result;
 }
 
 Matrix4 Matrix4::CreateFromVector(const Vector3& vec1, const Vector3& vec2, const Vector3& vec3, const Vector3& vec4)
