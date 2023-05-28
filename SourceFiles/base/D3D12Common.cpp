@@ -90,12 +90,8 @@ void PipelineManager::CreatePipeline(ComPtr<ID3D12PipelineState>& pipelinestate,
 	result = device->CreateGraphicsPipelineState(&pipeline, IID_PPV_ARGS(&pipelinestate));
 }
 
-void PipelineManager::AddRootParameter(RootParamType paramType)
+void PipelineManager::AddRootParameter(RootParamType paramType, UINT registerIndex)
 {
-	// デスクリプタレンジ
-	CD3DX12_DESCRIPTOR_RANGE descriptorRange{};
-	descriptorRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
-
 	CD3DX12_ROOT_PARAMETER rootParam{};
 	switch (paramType)
 	{
@@ -103,7 +99,10 @@ void PipelineManager::AddRootParameter(RootParamType paramType)
 		rootParam.InitAsConstantBufferView(shaderRegister++);
 		break;
 	case RootParamType::DescriptorTable:
-		rootParam.InitAsDescriptorTable(1, &descriptorRange);
+		// デスクリプタレンジ
+		CD3DX12_DESCRIPTOR_RANGE* descriptorRange = new CD3DX12_DESCRIPTOR_RANGE;
+		descriptorRange->Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, registerIndex);
+		rootParam.InitAsDescriptorTable(1, descriptorRange);
 		break;
 	}
 	rootParams.push_back(rootParam);

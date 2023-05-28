@@ -50,14 +50,14 @@ private:
 	std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayout;
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
 	UINT shaderRegister = 0;
-	std::vector<CD3DX12_ROOT_PARAMETER> rootParams;
 
 public:
+	std::vector<CD3DX12_ROOT_PARAMETER> rootParams;
 	enum class RootParamType { CBV, DescriptorTable };
 
 	void LoadShaders(std::wstring vsShaderName, std::wstring psShaderName, std::wstring gsShaderName = L"");
 	void AddInputLayout(LPCSTR semanticName, DXGI_FORMAT format);
-	void AddRootParameter(RootParamType paramType);
+	void AddRootParameter(RootParamType paramType, UINT registerIndex = 0);
 	void SetBlendDesc(D3D12_BLEND_OP blendOp, D3D12_BLEND srcBlend, D3D12_BLEND destBlend);
 	void SetBlendState(UINT16 index) { pipeline.BlendState.RenderTarget[index] = blenddesc; }
 	// ê}å`ÇÃå`èÛê›íË
