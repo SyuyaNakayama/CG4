@@ -19,7 +19,7 @@ private:
 	template<class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 	static const float CLEAR_COLOR[4];
 
-	ComPtr<ID3D12Resource> texBuff;
+	ComPtr<ID3D12Resource> texBuff[2];
 	ComPtr<ID3D12Resource> depthBuff;
 	ComPtr<ID3D12DescriptorHeap> descHeapSRV;
 	ComPtr<ID3D12DescriptorHeap> descHeapRTV;

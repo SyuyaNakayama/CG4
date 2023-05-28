@@ -59,6 +59,7 @@ public:
 	void AddInputLayout(LPCSTR semanticName, DXGI_FORMAT format);
 	void AddRootParameter(RootParamType paramType);
 	void SetBlendDesc(D3D12_BLEND_OP blendOp, D3D12_BLEND srcBlend, D3D12_BLEND destBlend);
+	void SetBlendState(UINT16 index) { pipeline.BlendState.RenderTarget[index] = blenddesc; }
 	// 図形の形状設定
 	void SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE primitiveTopologyType) { pipeline.PrimitiveTopologyType = primitiveTopologyType; }
 	// デプスステンシルステート
@@ -66,5 +67,5 @@ public:
 	// 深度バッファのフォーマット
 	void InitDSVFormat() { pipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT; }
 	void SetDepthWriteMask(D3D12_DEPTH_WRITE_MASK depthWriteMask) { pipeline.DepthStencilState.DepthWriteMask = depthWriteMask; }
-	void CreatePipeline(ComPtr<ID3D12PipelineState>& pipelinestate, ComPtr<ID3D12RootSignature>& rootsignature);
+	void CreatePipeline(ComPtr<ID3D12PipelineState>& pipelinestate, ComPtr<ID3D12RootSignature>& rootsignature, UINT numRenderTargets = 1);
 };

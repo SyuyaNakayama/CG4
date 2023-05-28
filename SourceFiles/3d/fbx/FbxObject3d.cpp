@@ -22,6 +22,7 @@ void FbxObject3d::CreateGraphicsPipeline()
 	pManager.AddInputLayout("BONEWEIGHTS", DXGI_FORMAT_R32G32B32A32_FLOAT);
 	// レンダーターゲットのブレンド設定
 	pManager.SetBlendDesc(D3D12_BLEND_OP_ADD, D3D12_BLEND_SRC_ALPHA, D3D12_BLEND_INV_SRC_ALPHA);
+	pManager.SetBlendState(1);
 	// デプスステンシルステート
 	pManager.InitDepthStencilState();
 	// 深度バッファのフォーマット
@@ -33,7 +34,7 @@ void FbxObject3d::CreateGraphicsPipeline()
 	pManager.AddRootParameter(PipelineManager::RootParamType::DescriptorTable); // SRV（テクスチャ）
 	pManager.AddRootParameter(PipelineManager::RootParamType::CBV);
 	// グラフィックスパイプラインの生成
-	pManager.CreatePipeline(pipelinestate, rootsignature);
+	pManager.CreatePipeline(pipelinestate, rootsignature, 2);
 }
 
 void FbxObject3d::Initialize(WorldTransform* worldTransform, FbxModel* model)
