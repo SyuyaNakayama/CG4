@@ -2,6 +2,7 @@
 #include "FbxLoader.h"
 #include "DirectXCommon.h"
 #include "ImGuiManager.h"
+#include "Model.h"
 
 static ColorRGB baseColor;
 static float metalness;
@@ -11,13 +12,16 @@ static float roughness;
 void NormalScene::Initialize()
 {
 	debugCamera.Initialize({}, 3);
-	lightGroup = LightGroup::Create();
 	WorldTransform::SetViewProjection(&debugCamera.GetViewProjection());
 	FbxObject3d::CreateGraphicsPipeline();
 	fbxModel_ = FbxLoader::LoadModelFromFile("spherePBR");
 	fbxObject_ = new FbxObject3d;
 	fbxObject_->Initialize(&fbxObjWT, fbxModel_);
-	FbxObject3d::SetLightGroup(lightGroup.get());
+	FbxObject3d::SetLightGroup(Model::GetLightGroup());
+	for (size_t i = 1; i < 3; i++)
+	{
+		//Model::GetLightGroup()->SetDirLightActive(i, false);
+	}
 
 	baseColor = fbxModel_->GetBaseColor();
 	metalness = fbxModel_->GetMetalness();

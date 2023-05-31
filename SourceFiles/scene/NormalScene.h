@@ -9,7 +9,6 @@ class NormalScene : public BaseScene
 	FbxModel* fbxModel_;
 	FbxObject3d* fbxObject_;
 	WorldTransform fbxObjWT;
-	std::unique_ptr<LightGroup> lightGroup;
 
 public:
 	void Initialize();
