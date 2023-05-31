@@ -4,10 +4,10 @@
 
 void NormalScene::Initialize()
 {
-	debugCamera.Initialize();
+	debugCamera.Initialize({}, 3);
 	WorldTransform::SetViewProjection(&debugCamera.GetViewProjection());
 	FbxObject3d::CreateGraphicsPipeline();
-	fbxModel_ = FbxLoader::LoadModelFromFile("boneTest");
+	fbxModel_ = FbxLoader::LoadModelFromFile("spherePBR");
 	fbxObject_ = new FbxObject3d;
 	fbxObject_->Initialize(&fbxObjWT, fbxModel_);
 }

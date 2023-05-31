@@ -167,26 +167,28 @@ void FbxModel::ParseMaterial(FbxNode* fbxNode)
 
 		if (material)
 		{
-			if (material->GetClassId().Is(FbxSurfaceLambert::ClassId))
+			string name = material->GetName(); // マテリアル名(デバッグ用)
+
+			// ベースカラー
+			const FbxProperty PROP_BASE_COLOR = FbxSurfaceMaterialUtils::GetProperty("baseColor", material);
+			if (PROP_BASE_COLOR.IsValid())
 			{
-				FbxSurfaceLambert* lambert = static_cast<FbxSurfaceLambert*>(material);
-				ambient = FbxDouble3ToVector3(lambert->Ambient);
-				diffuse = FbxDouble3ToVector3(lambert->Diffuse);
+				// プロパティの値読み取り
+				Vector3 baseColor = FbxDouble3ToVector3(PROP_BASE_COLOR.Get<FbxDouble3>());
+				this->baseColor = baseColor; // 読み取った値を書き込む
 			}
 
-			const FbxProperty DIFFUSE_PROPERTY = material->FindProperty(FbxSurfaceMaterial::sDiffuse);
-			if (DIFFUSE_PROPERTY.IsValid())
-			{
-				const FbxFileTexture* TEXTURE = DIFFUSE_PROPERTY.GetSrcObject<FbxFileTexture>();
-				if (TEXTURE)
-				{
-					const char* FILEPATH = TEXTURE->GetFileName();
-					string path_str(FILEPATH);
-					string name = ExtractFileName(path_str);
-					LoadTexture(BASE_DIRECTORY + "fbx/" + this->name + "/" + name);
-					textureLoaded = true;
-				}
-			}
+			// 金属度
+			const FbxProperty PROP_METALNESS = FbxSurfaceMaterialUtils::GetProperty("metalness", material);
+			if (PROP_METALNESS.IsValid()) { metalness = PROP_METALNESS.Get<float>(); }
+
+			// 隙間
+			const FbxProperty PROP_SPECULAR = FbxSurfaceMaterialUtils::GetProperty("specular", material);
+			if (PROP_SPECULAR.IsValid()) { specular = PROP_SPECULAR.Get<float>(); }
+
+			// 粗さ
+			const FbxProperty PROP_SPECULAR_ROUGHNESS = FbxSurfaceMaterialUtils::GetProperty("specularRoughness", material);
+			if (PROP_SPECULAR_ROUGHNESS.IsValid()) { roughness = PROP_SPECULAR_ROUGHNESS.Get<float>(); }
 		}
 
 		if (!textureLoaded) { LoadTexture(BASE_DIRECTORY + DEFAULT_TEXTURE_FILE_NAME); }
@@ -207,7 +209,7 @@ void FbxModel::ParseSkin(FbxMesh* fbxMesh)
 {
 	FbxSkin* fbxSkin = static_cast<FbxSkin*>(fbxMesh->GetDeformer(0, FbxDeformer::eSkin));
 	// スキニング情報がなければ終了
-	if (fbxSkin == nullptr) 
+	if (fbxSkin == nullptr)
 	{
 		// 各頂点についての処理
 		for (int i = 0; i < vertices.size(); i++)
@@ -216,7 +218,7 @@ void FbxModel::ParseSkin(FbxMesh* fbxMesh)
 			vertices[i].boneIndex[0] = 0;
 			vertices[i].boneWeight[0] = 1.0f;
 		}
-		return; 
+		return;
 	}
 
 	int clusterCount = fbxSkin->GetClusterCount();

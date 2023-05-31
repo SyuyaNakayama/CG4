@@ -65,6 +65,11 @@ private:
 	uint16_t* indexMap = nullptr;
 	vector<Bone> bones;
 	FbxScene* fbxScene = nullptr;
+	
+	Vector3 baseColor = { 1,1,1 }; // アルベド
+	float metalness = 0.0f; // 金属度(0 or 1)
+	float specular = 0.5f; //鏡面反射度(0 ~ 1)
+	float roughness = 0.0f; // 粗さ
 
 	void ParseMeshVertices(FbxMesh* fbxMesh);
 	void ParseMeshFaces(FbxMesh* fbxMesh);
