@@ -331,6 +331,14 @@ void FbxModel::CreateBuffers()
 
 	result = texBuff->WriteToSubresource(0, nullptr, img->pixels, (UINT)img->rowPitch, (UINT)img->slicePitch);
 #pragma endregion
+	// 定数バッファ生成
+	CreateBuffer(&constBuffMaterial, &constMapMaterial, (sizeof(ConstBufferDataMaterial) + 0xff) & ~0xff);
+	// 定数バッファへデータ転送
+	constMapMaterial->baseColor = baseColor;
+	constMapMaterial->metalness = metalness;
+	constMapMaterial->specular = specular;
+	constMapMaterial->roughness = roughness;
+
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 	D3D12_RESOURCE_DESC resDesc = texBuff->GetDesc();
 
@@ -353,5 +361,6 @@ void FbxModel::Draw()
 	ID3D12DescriptorHeap* ppHeaps[] = { descHeap };
 	cmdList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 	cmdList->SetGraphicsRootDescriptorTable(1, descHeap->GetGPUDescriptorHandleForHeapStart());
+	cmdList->SetGraphicsRootConstantBufferView(3, constBuffMaterial->GetGPUVirtualAddress());
 	cmdList->DrawIndexedInstanced((UINT)indices.size(), 1, 0, 0, 0);
 }

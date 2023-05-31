@@ -22,7 +22,7 @@ class FbxModel
 {
 public:
 	static const int MAX_BONE_INDICES = 4;
-	
+
 	struct VertexPosNormalUvSkin
 	{
 		Vector3 pos, normal;
@@ -40,6 +40,15 @@ public:
 		Bone(const std::string& name) { this->name = name; }
 	};
 
+	struct ConstBufferDataMaterial
+	{
+		Vector3 baseColor;
+		float metalness;
+		float specular;
+		float roughness;
+		float pad[2];
+	};
+
 private:
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 	using TexMetadata = DirectX::TexMetadata;
@@ -49,7 +58,7 @@ private:
 	static const string BASE_DIRECTORY;
 	static const string DEFAULT_TEXTURE_FILE_NAME;
 
-	ComPtr<ID3D12Resource> vertBuff, indexBuff, texBuff;
+	ComPtr<ID3D12Resource> vertBuff, indexBuff, texBuff, constBuffMaterial;
 	D3D12_VERTEX_BUFFER_VIEW vbView{};
 	D3D12_INDEX_BUFFER_VIEW ibView{};
 
@@ -62,10 +71,11 @@ private:
 	TexMetadata metadata{};
 	ScratchImage scratchImg{};
 	VertexPosNormalUvSkin* vertMap = nullptr;
+	ConstBufferDataMaterial* constMapMaterial = nullptr;
 	uint16_t* indexMap = nullptr;
 	vector<Bone> bones;
 	FbxScene* fbxScene = nullptr;
-	
+
 	Vector3 baseColor = { 1,1,1 }; // アルベド
 	float metalness = 0.0f; // 金属度(0 or 1)
 	float specular = 0.5f; //鏡面反射度(0 ~ 1)

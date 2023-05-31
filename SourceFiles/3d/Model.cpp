@@ -68,7 +68,7 @@ void Model::PreDraw()
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	// ƒ‰ƒCƒg‚Ì•`‰æ
 	assert(lightGroup);
-	lightGroup->Draw();
+	lightGroup->Draw(3);
 	// ƒJƒƒ‰
 	cmdList->SetGraphicsRootConstantBufferView(4, WorldTransform::GetViewProjection()->constBuffer->GetGPUVirtualAddress());
 }

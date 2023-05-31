@@ -6,6 +6,7 @@ using namespace DirectX;
 
 ComPtr<ID3D12RootSignature> FbxObject3d::rootsignature;
 ComPtr<ID3D12PipelineState> FbxObject3d::pipelinestate;
+LightGroup* FbxObject3d::lightGroup = nullptr;
 
 void FbxObject3d::CreateGraphicsPipeline()
 {
@@ -31,7 +32,9 @@ void FbxObject3d::CreateGraphicsPipeline()
 	// ルートパラメータ
 	pManager.AddRootParameter(PipelineManager::RootParamType::CBV); // CBV（座標変換行列用）
 	pManager.AddRootParameter(PipelineManager::RootParamType::DescriptorTable); // SRV（テクスチャ）
-	pManager.AddRootParameter(PipelineManager::RootParamType::CBV);
+	pManager.AddRootParameter(PipelineManager::RootParamType::CBV); // CBV（スキニング用）
+	pManager.AddRootParameter(PipelineManager::RootParamType::CBV); // CBV（マテリアル用）
+	pManager.AddRootParameter(PipelineManager::RootParamType::CBV); // CBV（ライト用）
 	// グラフィックスパイプラインの生成
 	pManager.CreatePipeline(pipelinestate, rootsignature);
 }
@@ -97,7 +100,7 @@ void FbxObject3d::Draw()
 	// 定数バッファビューをセット
 	cmdList->SetGraphicsRootConstantBufferView(0, constBuff->GetGPUVirtualAddress());
 	cmdList->SetGraphicsRootConstantBufferView(2, constBuffSkin->GetGPUVirtualAddress());
-
+	lightGroup->Draw(4);
 	// モデル描画
 	model->Draw();
 }

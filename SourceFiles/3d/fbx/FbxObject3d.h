@@ -1,6 +1,7 @@
 #pragma once
 #include "FbxModel.h"
 #include "WorldTransform.h"
+#include "LightGroup.h"
 
 class FbxObject3d
 {
@@ -28,6 +29,7 @@ private: // 静的メンバ変数
 	static ComPtr<ID3D12RootSignature> rootsignature;
 	// パイプラインステートオブジェクト
 	static ComPtr<ID3D12PipelineState> pipelinestate;
+	static LightGroup* lightGroup;
 
 protected: // メンバ変数
 	// 定数バッファ
@@ -41,6 +43,8 @@ protected: // メンバ変数
 	bool isPlay = false;
 
 public:
+	static void SetLightGroup(LightGroup* lightGroup) { FbxObject3d::lightGroup = lightGroup; }
+
 	/// <summary>
 	/// グラフィックパイプラインの生成
 	/// </summary>

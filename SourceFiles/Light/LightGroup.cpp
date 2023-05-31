@@ -80,10 +80,10 @@ void LightGroup::Update()
 	dirty = false;
 }
 
-void LightGroup::Draw()
+void LightGroup::Draw(UINT rootParameterIndex)
 {
 	ID3D12GraphicsCommandList* cmdList = DirectXCommon::GetInstance()->GetCommandList();
-	cmdList->SetGraphicsRootConstantBufferView(3, constBuff->GetGPUVirtualAddress());
+	cmdList->SetGraphicsRootConstantBufferView(rootParameterIndex, constBuff->GetGPUVirtualAddress());
 }
 
 void LightGroup::DefaultLightSetting()

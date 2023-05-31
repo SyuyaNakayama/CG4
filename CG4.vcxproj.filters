@@ -74,6 +74,9 @@
     <None Include="Resources\shaders\FBX.hlsli">
       <Filter>シェーダー ファイル\fbx</Filter>
     </None>
+    <None Include="Resources\shaders\Light.hlsli">
+      <Filter>シェーダー ファイル</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\shaders\SpritePS.hlsl">

@@ -1,3 +1,5 @@
+#include "Light.hlsli"
+
 cbuffer cbuff0 : register(b0)
 {
 	matrix viewproj; // ビュープロジェクション行列
@@ -10,6 +12,22 @@ static const int MAX_BONES = 32;
 cbuffer skinning : register(b1)
 {
 	matrix matSkinning[MAX_BONES];
+}
+
+cbuffer cbuff2 : register(b2)
+{
+	float3 baseColor;
+	float metalness;
+	float specular;
+	float roughness;
+}
+
+cbuffer cbuff3 : register(b3)
+{
+	float3 ambientColor;
+	DirLight dirLights[DIRLIGHT_NUM];
+	PointLight pointLights[POINTLIGHT_NUM];
+	SpotLight spotLights[SPOTLIGHT_NUM];
 }
 
 //バーテックスバッファーの入力
