@@ -7,6 +7,7 @@
 #include <d3dx12.h>
 #include "fbxsdk.h"
 #include "Matrix4.h"
+#include "Color.h"
 
 struct Node
 {
@@ -42,7 +43,7 @@ public:
 
 	struct ConstBufferDataMaterial
 	{
-		Vector3 baseColor;
+		ColorRGB baseColor;
 		float metalness;
 		float specular;
 		float roughness;
@@ -76,7 +77,7 @@ private:
 	vector<Bone> bones;
 	FbxScene* fbxScene = nullptr;
 
-	Vector3 baseColor = { 1,1,1 }; // アルベド
+	ColorRGB baseColor = { 1,1,1 }; // アルベド
 	float metalness = 0.0f; // 金属度(0 or 1)
 	float specular = 0.5f; //鏡面反射度(0 ~ 1)
 	float roughness = 0.0f; // 粗さ
@@ -97,7 +98,16 @@ public:
 	void ParseNodeRecursive(FbxNode* fbxNode, Node* parent = nullptr);
 	void CreateBuffers();
 	void Draw();
+	void TransferMaterial();
+	const ColorRGB& GetBaseColor() { return baseColor; }
+	float GetMetalness() { return metalness; }
+	float GetSpecular() { return specular; }
+	float GetRoughness() { return roughness; }
 	vector<Bone>& GetBones() { return bones; }
 	FbxScene* GetFbxScene() { return fbxScene; }
 	const Matrix4& GetModelTransform() { return meshNode->globalTransform; }
+	void SetBaseColor(const ColorRGB& baseColor_) { baseColor = baseColor_; }
+	void SetMetalness(float metalness_) { metalness = metalness_; }
+	void SetSpecular(float specular_) { specular = specular_; }
+	void SetRoughness(float roughness_) { roughness = roughness_; }
 };
