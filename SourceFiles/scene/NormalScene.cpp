@@ -14,13 +14,13 @@ void NormalScene::Initialize()
 	debugCamera.Initialize({}, 3);
 	WorldTransform::SetViewProjection(&debugCamera.GetViewProjection());
 	FbxObject3d::CreateGraphicsPipeline();
-	fbxModel_ = FbxLoader::LoadModelFromFile("spherePBR");
+	fbxModel_ = FbxLoader::LoadModelFromFile("spiralPBR");
 	fbxObject_ = new FbxObject3d;
 	fbxObject_->Initialize(&fbxObjWT, fbxModel_);
 	FbxObject3d::SetLightGroup(Model::GetLightGroup());
 	for (size_t i = 1; i < 3; i++)
 	{
-		Model::GetLightGroup()->SetDirLightActive(i, false);
+		//Model::GetLightGroup()->SetDirLightActive(i, false);
 	}
 
 	baseColor = fbxModel_->GetBaseColor();

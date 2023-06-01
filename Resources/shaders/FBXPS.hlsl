@@ -20,6 +20,14 @@ float SchlickFresnel(float f0, float f90, float cosine)
 	return lerp(f0, f90, m5);
 }
 
+float3 SchlickFresnel3(float3 f0, float3 f90, float cosine)
+{
+	float m = saturate(1 - cosine);
+	float m2 = m * m;
+	float m5 = m2 * m2 * m;
+	return lerp(f0, f90, m5);
+}
+
 /*
 * UE4のGGX分布
 * alpha : roughnessの2乗
@@ -32,12 +40,22 @@ float DistributionGGX(float alpha, float NdotH)
 	return alpha2 / (PI * t * t);
 }
 
+// ディズニーのフレネル計算
+float3 DisneyFresnel(float LdotH)
+{
+	float luminance = 0.3f * baseColor.r + 0.6f * baseColor.g + 0.1f * baseColor.b; // 輝度
+	float3 tintColor = baseColor / luminance; // 色合い
+	float3 nonMetalColor = specular * 0.08f * tintColor; // 非金属の鏡面反射色を計算
+	float3 specularColor = lerp(nonMetalColor, baseColor, metalness); // metalnessによる色補間 金属の場合はベースカラー
+	return SchlickFresnel3(specularColor, float3(1, 1, 1), LdotH); // LdotHの割合でSchlickFresnel補間
+}
+
 // 鏡面反射の計算
 float3 CookTorranceSpecular(float NdotL, float NdotV, float NdotH, float LdotH)
 {
 	float Ds = DistributionGGX(roughness * roughness, NdotH);				// D項(分布:Distribution)
-	float Fs = float3(1, 1, 1);		// F項(フレネル:Fresnel)
-	float Gs = 0.1f;				// G項(幾何減衰:Geometry attenuation)
+	float3 Fs = DisneyFresnel(LdotH);		// F項(フレネル:Fresnel)
+	float Gs = 1.0f;				// G項(幾何減衰:Geometry attenuation)
 	float m = 4.0f * NdotL * NdotV;	// m項(分母)
 	return Ds * Fs * Gs / m;		// 合成して鏡面反射の色を得る
 }
