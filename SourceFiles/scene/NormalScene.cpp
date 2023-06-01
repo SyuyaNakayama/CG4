@@ -20,7 +20,7 @@ void NormalScene::Initialize()
 	FbxObject3d::SetLightGroup(Model::GetLightGroup());
 	for (size_t i = 1; i < 3; i++)
 	{
-		//Model::GetLightGroup()->SetDirLightActive(i, false);
+		Model::GetLightGroup()->SetDirLightActive(i, false);
 	}
 
 	baseColor = fbxModel_->GetBaseColor();

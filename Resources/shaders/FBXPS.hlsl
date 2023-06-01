@@ -6,11 +6,11 @@ static const float PI = 3.141592654f; // π
 static float3 N; // 反射点の法線ベクトル
 
 /*
-Schlickによる近似
-f0 と f90 の値を(1 - cosine)の5乗でlerpする
-f0 : 光が垂直に入射したときの反射率
-f90 : 光が平行に入射したときの反射率
-cosine : 2ベクトルのなす角のコサイン(内積値)
+* Schlickによる近似
+* f0 と f90 の値を(1 - cosine)の5乗でlerpする
+* f0 : 光が垂直に入射したときの反射率
+* f90 : 光が平行に入射したときの反射率
+* cosine : 2ベクトルのなす角のコサイン(内積値)
 */
 float SchlickFresnel(float f0, float f90, float cosine)
 {
@@ -18,6 +18,28 @@ float SchlickFresnel(float f0, float f90, float cosine)
 	float m2 = m * m;
 	float m5 = m2 * m2 * m;
 	return lerp(f0, f90, m5);
+}
+
+/*
+* UE4のGGX分布
+* alpha : roughnessの2乗
+* NdotH : 法線とハーフベクトルの内積
+*/
+float DistributionGGX(float alpha, float NdotH)
+{
+	float alpha2 = alpha * alpha;
+	float t = NdotH * NdotH * (alpha2 - 1.0f) + 1.0f;
+	return alpha2 / (PI * t * t);
+}
+
+// 鏡面反射の計算
+float3 CookTorranceSpecular(float NdotL, float NdotV, float NdotH, float LdotH)
+{
+	float Ds = DistributionGGX(roughness * roughness, NdotH);				// D項(分布:Distribution)
+	float Fs = float3(1, 1, 1);		// F項(フレネル:Fresnel)
+	float Gs = 0.1f;				// G項(幾何減衰:Geometry attenuation)
+	float m = 4.0f * NdotL * NdotV;	// m項(分母)
+	return Ds * Fs * Gs / m;		// 合成して鏡面反射の色を得る
 }
 
 // 双方向反射分布関数
@@ -41,7 +63,8 @@ float3 BRDF(float3 L, float3 V)
 	float Fd = FL * FV * energyFactor; // 入って出ていくまでの拡散反射率
 
 	float3 diffuseColor = diffuseReflectance * Fd * baseColor * (1 - metalness); // 拡散反射項
-	return diffuseColor;
+	float3 specularColor = CookTorranceSpecular(NdotL, NdotV, NdotH, LdotH); // 鏡面反射項
+	return diffuseColor + specularColor; // 拡散反射と鏡面反射の合計で色が決まる
 }
 
 float4 main(VSOutput input) : SV_TARGET
