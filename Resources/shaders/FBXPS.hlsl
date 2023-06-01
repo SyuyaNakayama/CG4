@@ -50,12 +50,20 @@ float3 DisneyFresnel(float LdotH)
 	return SchlickFresnel3(specularColor, float3(1, 1, 1), LdotH); // LdotHの割合でSchlickFresnel補間
 }
 
+// UE4のSmithモデル
+float GeometricSmith(float cosine)
+{
+	float k = (roughness + 1.0f);
+	k = k * k / 8.0f;
+	return cosine / (cosine * (1.0f - k) + k);
+}
+
 // 鏡面反射の計算
 float3 CookTorranceSpecular(float NdotL, float NdotV, float NdotH, float LdotH)
 {
 	float Ds = DistributionGGX(roughness * roughness, NdotH);				// D項(分布:Distribution)
 	float3 Fs = DisneyFresnel(LdotH);		// F項(フレネル:Fresnel)
-	float Gs = 1.0f;				// G項(幾何減衰:Geometry attenuation)
+	float Gs = GeometricSmith(NdotL) * GeometricSmith(NdotV);				// G項(幾何減衰:Geometry attenuation)
 	float m = 4.0f * NdotL * NdotV;	// m項(分母)
 	return Ds * Fs * Gs / m;		// 合成して鏡面反射の色を得る
 }
