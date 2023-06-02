@@ -7,7 +7,7 @@
 #include <d3dx12.h>
 #include "fbxsdk.h"
 #include "Matrix4.h"
-#include "Color.h"
+#include "Sprite.h"
 
 struct Node
 {
@@ -25,15 +25,13 @@ struct TextureData
 	DirectX::ScratchImage scratchImg{};
 	Microsoft::WRL::ComPtr<ID3D12Resource> texBuff;
 	CD3DX12_GPU_DESCRIPTOR_HANDLE gpuHandle;
-
-	void CreateTexture(int srvIndex);
 };
 
 class FbxModel
 {
 public:
 	static const int MAX_BONE_INDICES = 4;
-	static const int MAX_BONE_TEXTURES = 4;
+	static const int MAX_TEXTURES = 3;
 
 	struct VertexPosNormalUvSkin
 	{
@@ -83,6 +81,7 @@ private:
 	uint16_t* indexMap = nullptr;
 	vector<Bone> bones;
 	FbxScene* fbxScene = nullptr;
+	ComPtr<ID3D12DescriptorHeap> descHeap;
 	// テクスチャ
 	TextureData baseTexture; // ベース
 	TextureData metalnessTexture; // メタル
@@ -100,6 +99,7 @@ private:
 	void ParseMesh(FbxNode* fbxNode);
 	void ParseSkin(FbxMesh* fbxMesh);
 	string ExtractFileName(const string& PATH);
+	void CreateTexture(TextureData& texture, int srvIndex);
 
 public:
 	friend class FbxLoader;

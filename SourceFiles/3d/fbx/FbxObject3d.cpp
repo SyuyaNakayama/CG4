@@ -33,7 +33,7 @@ void FbxObject3d::CreateGraphicsPipeline()
 	// ルートパラメータ
 	pManager.AddRootParameter(PipelineManager::RootParamType::CBV); // CBV（座標変換行列用）
 	
-	std::array<CD3DX12_DESCRIPTOR_RANGE, 4> descRangeSRVs{};
+	std::array<CD3DX12_DESCRIPTOR_RANGE, 3> descRangeSRVs{};
 	for (UINT i = 0; i < descRangeSRVs.size(); i++) { descRangeSRVs[i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, i); }
 
 	CD3DX12_ROOT_PARAMETER rootParam{};

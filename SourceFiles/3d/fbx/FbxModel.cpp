@@ -1,8 +1,7 @@
 #include "FbxModel.h"
 #include "D3D12Common.h"
-#include "SpriteCommon.h"
 
-const std::string FbxModel::BASE_DIRECTORY = "Resources/";
+const std::string FbxModel::BASE_DIRECTORY = "Resources/fbx/";
 const std::string FbxModel::DEFAULT_TEXTURE_FILE_NAME = "white1x1.png";
 
 void FbxModel::ConvertMatrixFromFbx(Matrix4* dst, const FbxAMatrix& src)
@@ -186,7 +185,7 @@ void FbxModel::ParseMaterial(FbxNode* fbxNode)
 					string path_str(filepath);
 					string name = ExtractFileName(path_str);
 					// テクスチャ読み込み
-					LoadTexture(&baseTexture, BASE_DIRECTORY + name + "/" + name);
+					LoadTexture(&baseTexture, BASE_DIRECTORY + this->name + "/" + name);
 					baseColor = {};
 					textureLoaded = true;
 				}
@@ -206,7 +205,7 @@ void FbxModel::ParseMaterial(FbxNode* fbxNode)
 					string path_str(filepath);
 					string name = ExtractFileName(path_str);
 					// テクスチャ読み込み
-					LoadTexture(&metalnessTexture, BASE_DIRECTORY + name + "/" + name);
+					LoadTexture(&metalnessTexture, BASE_DIRECTORY + this->name + "/" + name);
 					metalness = 0.0f;
 				}
 			}
@@ -229,7 +228,7 @@ void FbxModel::ParseMaterial(FbxNode* fbxNode)
 					string path_str(filepath);
 					string name = ExtractFileName(path_str);
 					// テクスチャ読み込み
-					LoadTexture(&roughnessTexture, BASE_DIRECTORY + name + "/" + name);
+					LoadTexture(&roughnessTexture, BASE_DIRECTORY + this->name + "/" + name);
 					roughness = 0.0f;
 				}
 			}
@@ -358,13 +357,21 @@ void FbxModel::CreateBuffers()
 	ibView.Format = DXGI_FORMAT_R16_UINT;
 	ibView.SizeInBytes = sizeIB;
 #pragma endregion
-	baseTexture.CreateTexture(0);
-	metalnessTexture.CreateTexture(1);
-	roughnessTexture.CreateTexture(2);
 
 	// 定数バッファ生成
 	CreateBuffer(&constBuffMaterial, &constMapMaterial, (sizeof(ConstBufferDataMaterial) + 0xff) & ~0xff);
 	TransferMaterial();
+
+	ID3D12Device* device = DirectXCommon::GetInstance()->GetDevice();
+	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc{};
+	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	srvHeapDesc.NumDescriptors = MAX_TEXTURES;
+	Result result = device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&descHeap));
+
+	CreateTexture(baseTexture, 0);
+	CreateTexture(metalnessTexture, 1);
+	CreateTexture(roughnessTexture, 2);
 }
 
 void FbxModel::Draw()
@@ -373,8 +380,7 @@ void FbxModel::Draw()
 	cmdList->IASetVertexBuffers(0, 1, &vbView);
 	cmdList->IASetIndexBuffer(&ibView);
 
-	ID3D12DescriptorHeap* descHeap = SpriteCommon::GetDescriptorHeap();
-	ID3D12DescriptorHeap* ppHeaps[] = { descHeap };
+	ID3D12DescriptorHeap* ppHeaps[] = { descHeap.Get() };
 	cmdList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 	cmdList->SetGraphicsRootDescriptorTable(1, descHeap->GetGPUDescriptorHandleForHeapStart());
 	cmdList->SetGraphicsRootConstantBufferView(3, constBuffMaterial->GetGPUVirtualAddress());
@@ -390,40 +396,41 @@ void FbxModel::TransferMaterial()
 	constMapMaterial->roughness = roughness;
 }
 
-void TextureData::CreateTexture(int srvIndex)
+void FbxModel::CreateTexture(TextureData& texture, int srvIndex)
 {
 	// テクスチャデータがない場合はなにもせずに終了
-	if (scratchImg.GetImageCount() == 0) { return; }
+	if (texture.scratchImg.GetImageCount() == 0) { return; }
 
 	Result result;
 	ID3D12Device* device = DirectXCommon::GetInstance()->GetDevice();
 
-	const DirectX::Image* img = scratchImg.GetImage(0, 0, 0);
+	const DirectX::Image* img = texture.scratchImg.GetImage(0, 0, 0);
 	assert(img);
 
 	CD3DX12_RESOURCE_DESC texresDesc = CD3DX12_RESOURCE_DESC::Tex2D(
-		metadata.format, metadata.width, (UINT)metadata.height,
-		(UINT16)metadata.arraySize, (UINT16)metadata.mipLevels);
+		texture.metadata.format, texture.metadata.width, (UINT)texture.metadata.height,
+		(UINT16)texture.metadata.arraySize, (UINT16)texture.metadata.mipLevels);
 
 	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_CPU_PAGE_PROPERTY_WRITE_BACK, D3D12_MEMORY_POOL_L0),
-		D3D12_HEAP_FLAG_NONE, &texresDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&texBuff));
+		D3D12_HEAP_FLAG_NONE, &texresDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&texture.texBuff));
 
-	result = texBuff->WriteToSubresource(0, nullptr, img->pixels, (UINT)img->rowPitch, (UINT)img->slicePitch);
+	result = texture.texBuff->WriteToSubresource(0, nullptr, img->pixels, (UINT)img->rowPitch, (UINT)img->slicePitch);
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	D3D12_RESOURCE_DESC resDesc = texBuff->GetDesc();
+	D3D12_RESOURCE_DESC resDesc = texture.texBuff->GetDesc();
 
 	srvDesc.Format = resDesc.Format;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
 
-	device->CreateShaderResourceView(texBuff.Get(), &srvDesc,
-		SpriteCommon::GetDescriptorHeap()->GetCPUDescriptorHandleForHeapStart());
+	device->CreateShaderResourceView(texture.texBuff.Get(), &srvDesc,
+		CD3DX12_CPU_DESCRIPTOR_HANDLE(
+		descHeap->GetCPUDescriptorHandleForHeapStart(),srvIndex,
+			device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)));
 
 	// GPUハンドル取得
-	ID3D12DescriptorHeap* descHeapSRV = SpriteCommon::GetDescriptorHeap();
-	gpuHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(descHeapSRV->GetGPUDescriptorHandleForHeapStart(), srvIndex,
+	texture.gpuHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(descHeap->GetGPUDescriptorHandleForHeapStart(), srvIndex,
 		device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
 }

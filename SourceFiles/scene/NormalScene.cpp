@@ -14,7 +14,7 @@ void NormalScene::Initialize()
 	debugCamera.Initialize({}, 3);
 	WorldTransform::SetViewProjection(&debugCamera.GetViewProjection());
 	FbxObject3d::CreateGraphicsPipeline();
-	fbxModel_ = FbxLoader::LoadModelFromFile("spiralPBR");
+	fbxModel_ = FbxLoader::LoadModelFromFile("SpherePBRMaps");
 	fbxObject_ = new FbxObject3d;
 	fbxObject_->Initialize(&fbxObjWT, fbxModel_);
 	FbxObject3d::SetLightGroup(Model::GetLightGroup());
