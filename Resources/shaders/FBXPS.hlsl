@@ -1,9 +1,14 @@
 #include "FBX.hlsli"
 
-Texture2D<float4> tex : register(t0);  // 0番スロットに設定されたテクスチャ
+Texture2D<float4> baseTex : register(t0);  // 0番スロットに設定されたテクスチャ
+Texture2D<float4> metalnessTex : register(t1);  // 1番スロットに設定されたテクスチャ
+Texture2D<float4> roughnessTex : register(t2);  // 2番スロットに設定されたテクスチャ
 SamplerState smp : register(s0);      // 0番スロットに設定されたサンプラー
 static const float PI = 3.141592654f; // π
 static float3 N; // 反射点の法線ベクトル
+static float3 s_baseColor; // アルベド
+static float s_metalness; // 金属度
+static float s_roughness; // 粗さ
 
 /*
 * Schlickによる近似
@@ -43,17 +48,17 @@ float DistributionGGX(float alpha, float NdotH)
 // ディズニーのフレネル計算
 float3 DisneyFresnel(float LdotH)
 {
-	float luminance = 0.3f * baseColor.r + 0.6f * baseColor.g + 0.1f * baseColor.b; // 輝度
-	float3 tintColor = baseColor / luminance; // 色合い
+	float luminance = 0.3f * s_baseColor.r + 0.6f * s_baseColor.g + 0.1f * s_baseColor.b; // 輝度
+	float3 tintColor = s_baseColor / luminance; // 色合い
 	float3 nonMetalColor = specular * 0.08f * tintColor; // 非金属の鏡面反射色を計算
-	float3 specularColor = lerp(nonMetalColor, baseColor, metalness); // metalnessによる色補間 金属の場合はベースカラー
+	float3 specularColor = lerp(nonMetalColor, s_baseColor, s_metalness); // s_metalnessによる色補間 金属の場合はベースカラー
 	return SchlickFresnel3(specularColor, float3(1, 1, 1), LdotH); // LdotHの割合でSchlickFresnel補間
 }
 
 // UE4のSmithモデル
 float GeometricSmith(float cosine)
 {
-	float k = (roughness + 1.0f);
+	float k = (s_roughness + 1.0f);
 	k = k * k / 8.0f;
 	return cosine / (cosine * (1.0f - k) + k);
 }
@@ -61,11 +66,11 @@ float GeometricSmith(float cosine)
 // 鏡面反射の計算
 float3 CookTorranceSpecular(float NdotL, float NdotV, float NdotH, float LdotH)
 {
-	float Ds = DistributionGGX(roughness * roughness, NdotH);				// D項(分布:Distribution)
-	float3 Fs = DisneyFresnel(LdotH);		// F項(フレネル:Fresnel)
-	float Gs = GeometricSmith(NdotL) * GeometricSmith(NdotV);				// G項(幾何減衰:Geometry attenuation)
-	float m = 4.0f * NdotL * NdotV;	// m項(分母)
-	return Ds * Fs * Gs / m;		// 合成して鏡面反射の色を得る
+	float Ds = DistributionGGX(s_roughness * s_roughness, NdotH);	// D項(分布:Distribution)
+	float3 Fs = DisneyFresnel(LdotH);	// F項(フレネル:Fresnel)
+	float Gs = GeometricSmith(NdotL) * GeometricSmith(NdotV);	// G項(幾何減衰:Geometry attenuation)
+	float m = 4.0f * NdotL * NdotV;		// m項(分母)
+	return Ds * Fs * Gs / m;			// 合成して鏡面反射の色を得る
 }
 
 // 双方向反射分布関数
@@ -81,14 +86,14 @@ float3 BRDF(float3 L, float3 V)
 
 	float diffuseReflectance = 1.0f / PI; // 拡散反射率
 
-	float energyBias = 0.5 * roughness;
-	float Fd90 = energyBias + 2 * LdotH * LdotH * roughness; // 入射角が90°の場合の拡散反射率
+	float energyBias = 0.5 * s_roughness;
+	float Fd90 = energyBias + 2 * LdotH * LdotH * s_roughness; // 入射角が90°の場合の拡散反射率
 	float FL = SchlickFresnel(1.0f, Fd90, NdotL); // 入っていく時の拡散反射率
 	float FV = SchlickFresnel(1.0f, Fd90, NdotV); // 出ていく時の拡散反射率
-	float energyFactor = lerp(1.0f, 1.0f / 1.51f, roughness);
+	float energyFactor = lerp(1.0f, 1.0f / 1.51f, s_roughness);
 	float Fd = FL * FV * energyFactor; // 入って出ていくまでの拡散反射率
 
-	float3 diffuseColor = diffuseReflectance * Fd * baseColor * (1 - metalness); // 拡散反射項
+	float3 diffuseColor = diffuseReflectance * Fd * s_baseColor * (1 - s_metalness); // 拡散反射項
 	float3 specularColor = CookTorranceSpecular(NdotL, NdotV, NdotH, LdotH); // 鏡面反射項
 	return diffuseColor + specularColor; // 拡散反射と鏡面反射の合計で色が決まる
 }
@@ -96,6 +101,10 @@ float3 BRDF(float3 L, float3 V)
 float4 main(VSOutput input) : SV_TARGET
 {
 	N = input.normal;
+	s_baseColor = baseColor + baseTex.Sample(smp, input.uv).rgb;
+	s_metalness = metalness + metalnessTex.Sample(smp, input.uv).r;
+	s_roughness = roughness + roughnessTex.Sample(smp, input.uv).r;
+
 	float3 finalRGB = float3(0, 0, 0);
 	float3 eyedir = normalize(cameraPos - input.worldpos.xyz);
 	for (int i = 0; i < DIRLIGHT_NUM; i++)
@@ -105,13 +114,4 @@ float4 main(VSOutput input) : SV_TARGET
 	}
 
 	return float4(finalRGB, 1);
-	//// テクスチャマッピング
-	//float4 texcolor = tex.sample(smp, input.uv);
-	//// lambert反射
-	//float3 light = normalize(float3(1,-1,1)); // 右下奥　向きのライト
-	//float diffuse = saturate(dot(-light, input.normal));
-	//float brightness = diffuse + 0.3f;
-	//float4 shadecolor = float4(brightness, brightness, brightness, 1.0f);
-	//// 陰影とテクスチャの色を合成
-	//return shadecolor * texcolor;
 }

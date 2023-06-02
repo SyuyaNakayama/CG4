@@ -50,9 +50,9 @@ private:
 	std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayout;
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
 	UINT shaderRegister = 0;
-	std::vector<CD3DX12_ROOT_PARAMETER> rootParams;
 
 public:
+	std::vector<CD3DX12_ROOT_PARAMETER> rootParams;
 	enum class RootParamType { CBV, DescriptorTable };
 
 	void LoadShaders(std::wstring vsShaderName, std::wstring psShaderName, std::wstring gsShaderName = L"");

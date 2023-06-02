@@ -1,6 +1,7 @@
 #include "FbxObject3d.h"
 #include "DirectXCommon.h"
 #include "D3D12Common.h"
+#include <array>
 using namespace Microsoft::WRL;
 using namespace DirectX;
 
@@ -31,7 +32,14 @@ void FbxObject3d::CreateGraphicsPipeline()
 	pManager.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
 	// ルートパラメータ
 	pManager.AddRootParameter(PipelineManager::RootParamType::CBV); // CBV（座標変換行列用）
-	pManager.AddRootParameter(PipelineManager::RootParamType::DescriptorTable); // SRV（テクスチャ）
+	
+	std::array<CD3DX12_DESCRIPTOR_RANGE, 4> descRangeSRVs{};
+	for (UINT i = 0; i < descRangeSRVs.size(); i++) { descRangeSRVs[i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, i); }
+
+	CD3DX12_ROOT_PARAMETER rootParam{};
+	rootParam.InitAsDescriptorTable(descRangeSRVs.size(), descRangeSRVs.data());
+	pManager.rootParams.push_back(rootParam);
+
 	pManager.AddRootParameter(PipelineManager::RootParamType::CBV); // CBV（スキニング用）
 	pManager.AddRootParameter(PipelineManager::RootParamType::CBV); // CBV（マテリアル用）
 	pManager.AddRootParameter(PipelineManager::RootParamType::CBV); // CBV（ライト用）
