@@ -10,8 +10,12 @@ void MyGame::Initialize()
 	ImGuiManager::Initialize();
 	viewProjection.Initialize();
 	WorldTransform::SetViewProjection(&viewProjection);
-	postEffect = std::make_unique<PostEffect>();
-	postEffect->Initialize();
+	for (size_t i = 0; i < 2; i++)
+	{
+		postEffects[i].Initialize();
+	}
+	postEffects[0].SetEffectType(1);
+	postEffects[1].SetEffectType(0);
 }
 
 void MyGame::Update()
@@ -25,12 +29,12 @@ void MyGame::Update()
 
 void MyGame::Draw()
 {
-	postEffect->PreDrawScene();
+	postEffects[0].PreDrawScene();
 	sceneManager->Draw();
-	postEffect->PostDrawScene();
+	postEffects[0].PostDrawScene();
 
 	dxCommon->PreDraw();
-	postEffect->Draw();
+	postEffects[0].Draw();
 	ImGuiManager::Draw();
 	dxCommon->PostDraw();
 }

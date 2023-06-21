@@ -1,3 +1,8 @@
+cbuffer cbuff0 : register(b0)
+{
+	uint effectType;
+}
+
 struct VSOutput
 {
 	float4 svpos : SV_POSITION;

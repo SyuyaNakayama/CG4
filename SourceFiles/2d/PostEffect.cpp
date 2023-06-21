@@ -43,12 +43,10 @@ void PostEffect::CreateBuffers()
 	vbView.StrideInBytes = sizeof(Vertex);
 
 	// 定数バッファ
-	ConstBufferData* constMap = nullptr;
 	CreateBuffer(constBuff.GetAddressOf(),
 		&constMap, (sizeof(ConstBufferData) + 0xff) & ~0xff);
 
-	constMap->mat = Matrix4::Identity();
-	constMap->color = { 1,1,1,1 };
+	constMap->effectType = 0;
 
 	Result result;
 	const Vector2 WIN_SIZE = WindowsAPI::WIN_SIZE;

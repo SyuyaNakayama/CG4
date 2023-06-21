@@ -6,7 +6,7 @@
 class MyGame : public Framework
 {
 private:
-	std::unique_ptr<PostEffect> postEffect;
+	std::array<PostEffect, 2> postEffects;
 	ViewProjection viewProjection;
 
 public:

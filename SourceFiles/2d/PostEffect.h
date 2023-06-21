@@ -12,8 +12,7 @@ private:
 
 	struct ConstBufferData
 	{
-		Matrix4 mat;
-		ColorRGBA color;
+		UINT32 effectType;
 	};
 
 	template<class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
@@ -27,6 +26,7 @@ private:
 	std::array<Vertex, 4> vertices;
 	D3D12_VERTEX_BUFFER_VIEW vbView{};
 	Microsoft::WRL::ComPtr<ID3D12Resource> constBuff;
+	ConstBufferData* constMap = nullptr;
 	ComPtr<ID3D12RootSignature> rootSignature;
 	ComPtr<ID3D12PipelineState> pipelineState;
 
@@ -37,6 +37,7 @@ private:
 	void CreateDSV();
 public:
 	void Initialize();
+	void SetEffectType(UINT32 effectType) { constMap->effectType = effectType; }
 	void Draw();
 	void PreDrawScene();
 	void PostDrawScene();
