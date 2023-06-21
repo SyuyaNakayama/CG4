@@ -43,7 +43,7 @@ void LoadShader(ID3DBlob** shaderBlob, wstring shaderName, LPCSTR target)
 	}
 }
 
-void PipelineManager::CreatePipeline(ComPtr<ID3D12PipelineState>& pipelinestate, ComPtr<ID3D12RootSignature>& rootsignature)
+void PipelineManager::CreatePipeline(ComPtr<ID3D12PipelineState>& pipelinestate, ComPtr<ID3D12RootSignature>& rootsignature, UINT numRenderTargets)
 {
 	// グラフィックスパイプラインの流れを設定
 	pipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
@@ -55,13 +55,6 @@ void PipelineManager::CreatePipeline(ComPtr<ID3D12PipelineState>& pipelinestate,
 	// ラスタライザステート
 	pipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 
-	// レンダーターゲットのブレンド設定
-	blenddesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;	// RBGA全てのチャンネルを描画
-	blenddesc.BlendEnable = true;
-	blenddesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlendAlpha = D3D12_BLEND_ONE;
-	blenddesc.DestBlendAlpha = D3D12_BLEND_ZERO;
-
 	// ブレンドステートの設定
 	pipeline.BlendState.RenderTarget[0] = blenddesc;
 
@@ -69,8 +62,11 @@ void PipelineManager::CreatePipeline(ComPtr<ID3D12PipelineState>& pipelinestate,
 	pipeline.InputLayout.pInputElementDescs = inputLayout.data();
 	pipeline.InputLayout.NumElements = (UINT)inputLayout.size();
 
-	pipeline.NumRenderTargets = 1;	// 描画対象は1つ
-	pipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB; // 0～255指定のRGBA
+	pipeline.NumRenderTargets = numRenderTargets;
+	for (size_t i = 0; i < numRenderTargets; i++)
+	{
+		pipeline.RTVFormats[i] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB; // 0～255指定のRGBA
+	}
 	pipeline.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
 
 	// スタティックサンプラー
@@ -94,12 +90,8 @@ void PipelineManager::CreatePipeline(ComPtr<ID3D12PipelineState>& pipelinestate,
 	result = device->CreateGraphicsPipelineState(&pipeline, IID_PPV_ARGS(&pipelinestate));
 }
 
-void PipelineManager::AddRootParameter(RootParamType paramType)
+void PipelineManager::AddRootParameter(RootParamType paramType, UINT registerIndex)
 {
-	// デスクリプタレンジ
-	CD3DX12_DESCRIPTOR_RANGE descriptorRange{};
-	descriptorRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
-
 	CD3DX12_ROOT_PARAMETER rootParam{};
 	switch (paramType)
 	{
@@ -107,7 +99,10 @@ void PipelineManager::AddRootParameter(RootParamType paramType)
 		rootParam.InitAsConstantBufferView(shaderRegister++);
 		break;
 	case RootParamType::DescriptorTable:
-		rootParam.InitAsDescriptorTable(1, &descriptorRange);
+		// デスクリプタレンジ
+		CD3DX12_DESCRIPTOR_RANGE* descriptorRange = new CD3DX12_DESCRIPTOR_RANGE;
+		descriptorRange->Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, registerIndex);
+		rootParam.InitAsDescriptorTable(1, descriptorRange);
 		break;
 	}
 	rootParams.push_back(rootParam);
@@ -123,6 +118,12 @@ void PipelineManager::SetBlendDesc(D3D12_BLEND_OP blendOp, D3D12_BLEND SrcBlend,
 	blenddesc.BlendOp = blendOp;
 	blenddesc.SrcBlend = SrcBlend;
 	blenddesc.DestBlend = DestBlend;
+	// レンダーターゲットのブレンド設定
+	blenddesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;	// RBGA全てのチャンネルを描画
+	blenddesc.BlendEnable = true;
+	blenddesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blenddesc.SrcBlendAlpha = D3D12_BLEND_ONE;
+	blenddesc.DestBlendAlpha = D3D12_BLEND_ZERO;
 }
 
 void PipelineManager::LoadShaders(std::wstring vsShaderName, std::wstring psShaderName, std::wstring gsShaderName)
