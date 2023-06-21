@@ -5,7 +5,6 @@
 #include <vector>
 #include <chrono>
 #include "WindowsAPI.h"
-#include "Matrix4.h"
 
 class DirectXCommon final
 {

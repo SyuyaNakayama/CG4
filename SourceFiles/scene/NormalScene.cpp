@@ -12,20 +12,14 @@ void NormalScene::Initialize()
 	{
 		lightGroup->SetDirLightActive(i, false);
 	}
-	for (auto& sphere : spheres)
+	model = Model::Create("cube");
+	for (auto& w : worldTransforms) { w.Initialize(); }
+	for (size_t i = 0; i < worldTransforms.size(); i++)
 	{
-		sphere = Model::Create("sphere", true);
-		sphere->GetSprite()->SetColor({ 1,0,0,1 });
-	}
-	spheres[0]->SetIsToon(true);
-	spheres[2]->SetIsUseRim(true);
-	spheres[3]->SetSprite(Sprite::Create("09_Test_Texture2.jpg"));
-	for (int i = 0; i < sphereWTs.size(); i++)
-	{
-		sphereWTs[i].Initialize();
-		sphereWTs[i].translation.x = 3.0f * ((float)i - 1.5f);
+		worldTransforms[i].translation.x = -4.5f + 3.0f * (float)i;
 	}
 }
+
 
 void NormalScene::Update()
 {
@@ -48,27 +42,14 @@ void NormalScene::Update()
 		// 光源の色
 		ImGuiManager::ColorEdit("DirLight", lightColor);
 	}
-	// リムライトの操作
-	if (ImGui::CollapsingHeader("RimLight"))
-	{
-		// リムライトの強さ
-		ImGui::SliderFloat("RimPower", &rimPower, 0, 8.0f);
-		// 輪郭線の切り替え
-		ImGui::Checkbox("isRimSeparate", &isRimSeparate);
-	}
-	// ImGuiで変えた値の代入
 	Model::GetLightGroup()->SetDirLightColor(0, lightColor);
 	Model::GetLightGroup()->SetDirLightDir(0, lightDir);
-	spheres[2]->SetRimPower(rimPower);
-	spheres[2]->SetIsRimSeparate(isRimSeparate);
-	// オブジェクトの更新
-	for (auto& sphere : spheres) { sphere->Update(); }
-	for (auto& sphereWT : sphereWTs) { sphereWT.Update(); }
+	for (auto& w : worldTransforms) { w.Update(); }
 }
 
 void NormalScene::Draw()
 {
 	Model::PreDraw();
-	for (size_t i = 0; i < spheres.size(); i++) { spheres[i]->Draw(sphereWTs[i]); }
+	for (size_t i = 0; i < worldTransforms.size(); i++) { model->Draw(worldTransforms[i]); }
 	Model::PostDraw();
 }

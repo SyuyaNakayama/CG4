@@ -6,9 +6,9 @@
 class NormalScene : public BaseScene
 {
 	DebugCamera debugCamera;
-	std::array<std::unique_ptr<Model>, 4> spheres;
-	std::array<WorldTransform, 4> sphereWTs;
-	Vector3 lightDir = { 0,-1,0 };
+	std::unique_ptr<Model> model;
+	std::array<WorldTransform, 4> worldTransforms;
+	Vector3 lightDir = { 0,0,1 };
 	ColorRGB lightColor = { 1,1,1 };
 	float rimPower = 5.0f;
 	bool isRimSeparate = false;

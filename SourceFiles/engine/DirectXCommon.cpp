@@ -2,6 +2,7 @@
 #include "D3D12Common.h"
 #include <vector>
 #include <thread>
+#include "Matrix4.h"
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 using namespace std;

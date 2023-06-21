@@ -65,6 +65,9 @@
     <None Include="Resources\shaders\Particle.hlsli">
       <Filter>シェーダー ファイル\particle</Filter>
     </None>
+    <None Include="Resources\shaders\PostEffectFunctions.hlsli">
+      <Filter>シェーダー ファイル\postEffect</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\shaders\SpritePS.hlsl">
