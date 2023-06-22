@@ -16,6 +16,7 @@ void MyGame::Initialize()
 	}
 	postEffects[0].SetEffectType(1);
 	postEffects[1].SetEffectType(0);
+	multiTexture.Initialize();
 }
 
 void MyGame::Update()
@@ -33,8 +34,16 @@ void MyGame::Draw()
 	sceneManager->Draw();
 	postEffects[0].PostDrawScene();
 
+	multiTexture.PreDrawScene();
+	sceneManager->Draw();
+	multiTexture.PostDrawScene();
+
+	static int i = 0;
+	if (input->GetInstance()->IsTrigger(Key::_1)) { i = (i + 1) % 2; }
+
 	dxCommon->PreDraw();
-	postEffects[0].Draw();
+	if (i == 0) { postEffects[0].Draw(); }
+	else { multiTexture.Draw(); }
 	ImGuiManager::Draw();
 	dxCommon->PostDraw();
 }

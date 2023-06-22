@@ -1,6 +1,7 @@
 cbuffer cbuff0 : register(b0)
 {
 	uint effectType;
+    uint index; // マルチテクスチャでポストエフェクトをかけるテクスチャのインデックス
 }
 
 struct VSOutput

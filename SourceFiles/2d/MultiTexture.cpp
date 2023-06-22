@@ -8,7 +8,7 @@ const float MultiTexture::CLEAR_COLOR[4] = { 0.1f,0.25f,0.5f,0 };
 void MultiTexture::CreateGraphicsPipelineState()
 {
 	PipelineManager pipelineManager;
-	pipelineManager.LoadShaders(L"MultiTextureVS", L"MultiTexturePS");
+	pipelineManager.LoadShaders(L"PostEffectVS", L"MultiTexturePS");
 	pipelineManager.AddInputLayout("POSITION", DXGI_FORMAT_R32G32_FLOAT);
 	pipelineManager.AddInputLayout("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT);
 	pipelineManager.SetBlendDesc(D3D12_BLEND_OP_ADD, D3D12_BLEND_SRC_ALPHA, D3D12_BLEND_INV_SRC_ALPHA);

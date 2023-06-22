@@ -12,7 +12,7 @@ float4 ColorFlip(float4 col)
     return float4(float3(1, 1, 1) - col.rgb, 1);
 }
 
-float4 ChangeUV(VSOutput i, float2 uvOffset)
+float4 ChangeUV(Texture2D<float4> tex, VSOutput i, float2 uvOffset)
 {
     return tex.Sample(smp, i.uv + uvOffset);
 }
@@ -81,7 +81,7 @@ float Bloom(VSOutput i)
 {
     float4 highLumi = GetHighLumi(i); // ‚‹P“x’Šo
     float4 blur = float4(0, 0, 0, 0);
-        blur = GaussianBlur(i); // ‚Ú‚©‚µ
+    blur = GaussianBlur(i); // ‚Ú‚©‚µ
     if (GrayScale(highLumi) > 0.1)
     {
     }

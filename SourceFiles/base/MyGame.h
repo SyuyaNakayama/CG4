@@ -1,12 +1,14 @@
 #pragma once
 #include "Framework.h"
 #include "PostEffect.h"
+#include "MultiTexture.h"
 #include "ViewProjection.h"
 
 class MyGame : public Framework
 {
 private:
 	std::array<PostEffect, 2> postEffects;
+	MultiTexture multiTexture;
 	ViewProjection viewProjection;
 
 public:
