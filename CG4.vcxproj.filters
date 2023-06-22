@@ -97,6 +97,9 @@
     <FxCompile Include="Resources\shaders\ParticleVS.hlsl">
       <Filter>シェーダー ファイル\particle</Filter>
     </FxCompile>
+    <FxCompile Include="Resources\shaders\MultiTexturePS.hlsl">
+      <Filter>シェーダー ファイル\postEffect</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\math\Matrix4.cpp">
