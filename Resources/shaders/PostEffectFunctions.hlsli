@@ -1,6 +1,5 @@
 #include "PostEffect.hlsli"
 SamplerState smp : register(s0);
-Texture2D<float4> tex : register(t0);
 
 float4 ChangeBrightness(float4 col, float brightness)
 {
@@ -28,15 +27,14 @@ float GrayScale(float4 col)
     return col.r * 0.299 + col.g * 0.587 + col.b * 0.114;
 }
 
-float4 GetHighLumi(VSOutput i)
+float4 GetHighLumi(float4 col)
 {
-    float4 col = tex.Sample(smp, i.uv);
     float grayScale = GrayScale(col);
     float extract = smoothstep(0.6, 0.9, grayScale);
     return col * extract;
 }
 
-float4 Blur(VSOutput i, float blurRange)
+float4 Blur(Texture2D<float4> tex, VSOutput i, float blurRange)
 {
     float4 col = float4(0, 0, 0, 0);
     float num = 0;
@@ -55,7 +53,7 @@ float4 Blur(VSOutput i, float blurRange)
     return col;
 }
 
-float4 GaussianBlur(VSOutput i)
+float4 GaussianBlur(Texture2D<float4> tex, VSOutput i)
 {
     float totalWeight = 0, sigma = 0.005, stepWidth = 0.001;
     float4 col = float4(0, 0, 0, 0);
@@ -66,24 +64,15 @@ float4 GaussianBlur(VSOutput i)
         {
             float2 pickUV = i.uv + float2(px, py);
             float weight = Gaussian(i.uv, pickUV, sigma);
+            float d = distance(i.uv, pickUV);
+
 			// Gaussianで取得した「重み」を色にかける
             col += tex.Sample(smp, pickUV) * weight;
 			// かけた「重み」の合計値を控えておく
             totalWeight += weight;
         }
     }
-    col.rgb = col.rgb / totalWeight; // かけた「重み」分、結果から割る
+    col.rgb /= totalWeight; // かけた「重み」分、結果から割る
     col.a = 1;
     return col;
-}
-
-float Bloom(VSOutput i)
-{
-    float4 highLumi = GetHighLumi(i); // 高輝度抽出
-    float4 blur = float4(0, 0, 0, 0);
-    blur = GaussianBlur(i); // ぼかし
-    if (GrayScale(highLumi) > 0.1)
-    {
-    }
-    return tex.Sample(smp, i.uv) + highLumi + blur; // テクスチャ合成
 }

@@ -13,6 +13,7 @@ private:
 	struct ConstBufferData
 	{
 		UINT32 effectType;
+		UINT32 index;
 	};
 
 	template<class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
@@ -38,6 +39,7 @@ private:
 public:
 	void Initialize();
 	void SetEffectType(UINT32 effectType) { constMap->effectType = effectType; }
+	ID3D12DescriptorHeap* GetSRV() { return descHeapSRV.Get(); }
 	void Draw();
 	void PreDrawScene();
 	void PostDrawScene();

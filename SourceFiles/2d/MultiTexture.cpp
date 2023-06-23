@@ -44,12 +44,11 @@ void MultiTexture::CreateBuffers()
 	vbView.StrideInBytes = sizeof(Vertex);
 
 	// 定数バッファ
-	ConstBufferData* constMap = nullptr;
 	CreateBuffer(constBuff.GetAddressOf(),
 		&constMap, (sizeof(ConstBufferData) + 0xff) & ~0xff);
 
-	constMap->mat = Matrix4::Identity();
-	constMap->color = { 1,1,1,1 };
+	constMap->effectType = 0;
+	constMap->index = 0;
 
 	Result result;
 	const Vector2 WIN_SIZE = WindowsAPI::WIN_SIZE;
@@ -165,7 +164,7 @@ void MultiTexture::Initialize()
 	CreateGraphicsPipelineState();
 }
 
-void MultiTexture::Draw()
+void MultiTexture::Draw(std::array<PostEffect, 2>& postEffects)
 {
 	ID3D12GraphicsCommandList* cmdList = DirectXCommon::GetInstance()->GetCommandList();
 	ID3D12Device* device = DirectXCommon::GetInstance()->GetDevice();
@@ -176,18 +175,23 @@ void MultiTexture::Draw()
 	// プリミティブ形状の設定コマンド
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); // 三角形リスト
 	// デスクリプタヒープの設定コマンド
-	ID3D12DescriptorHeap* ppHeaps[] = { descHeapSRV.Get() };
+	ID3D12DescriptorHeap* ppHeaps[] = { postEffects[1].GetSRV()};
 	cmdList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
-	cmdList->SetGraphicsRootDescriptorTable(1,
-		CD3DX12_GPU_DESCRIPTOR_HANDLE(
-			descHeapSRV->GetGPUDescriptorHandleForHeapStart(), 0,
-			device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)));
+	//cmdList->SetGraphicsRootDescriptorTable(1,
+	//	CD3DX12_GPU_DESCRIPTOR_HANDLE(
+	//		descHeapSRV->GetGPUDescriptorHandleForHeapStart(), 0,
+	//		device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)));
 
-	cmdList->SetGraphicsRootDescriptorTable(2,
-		CD3DX12_GPU_DESCRIPTOR_HANDLE(
-			descHeapSRV->GetGPUDescriptorHandleForHeapStart(), 1,
-			device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)));
+	//cmdList->SetGraphicsRootDescriptorTable(2,
+	//	CD3DX12_GPU_DESCRIPTOR_HANDLE(
+	//		descHeapSRV->GetGPUDescriptorHandleForHeapStart(), 1,
+	//		device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)));
+
+	cmdList->SetGraphicsRootDescriptorTable(1, postEffects[0].GetSRV()->GetGPUDescriptorHandleForHeapStart());
+	cmdList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+
+	cmdList->SetGraphicsRootDescriptorTable(2, postEffects[1].GetSRV()->GetGPUDescriptorHandleForHeapStart());
 
 	// 頂点バッファビューの設定コマンド
 	cmdList->IASetVertexBuffers(0, 1, &vbView);

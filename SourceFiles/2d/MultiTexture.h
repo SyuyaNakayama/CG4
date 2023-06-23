@@ -4,6 +4,7 @@
 #include <d3d12.h>
 #include "Color.h"
 #include "Matrix4.h"
+#include "PostEffect.h"
 
 class MultiTexture
 {
@@ -12,10 +13,10 @@ private:
 
 	struct ConstBufferData
 	{
-		Matrix4 mat;
-		ColorRGBA color;
+		UINT32 effectType;
+		UINT32 index;
 	};
-	
+
 	template<class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 	static const float CLEAR_COLOR[4];
 
@@ -26,6 +27,7 @@ private:
 	ComPtr<ID3D12DescriptorHeap> descHeapDSV;
 	std::array<Vertex, 4> vertices;
 	D3D12_VERTEX_BUFFER_VIEW vbView{};
+	ConstBufferData* constMap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> constBuff;
 	ComPtr<ID3D12RootSignature> rootSignature;
 	ComPtr<ID3D12PipelineState> pipelineState;
@@ -36,8 +38,9 @@ private:
 	void CreateRTV();
 	void CreateDSV();
 public:
+	void SetConstBufferData(const ConstBufferData& constBufferData) { *constMap = constBufferData; }
 	void Initialize();
-	void Draw();
+	void Draw(std::array<PostEffect, 2>& postEffects);
 	void PreDrawScene();
 	void PostDrawScene();
 };
