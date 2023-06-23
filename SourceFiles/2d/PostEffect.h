@@ -21,7 +21,9 @@ private:
 
 	ComPtr<ID3D12Resource> texBuff;
 	ComPtr<ID3D12Resource> depthBuff;
-	ComPtr<ID3D12DescriptorHeap> descHeapSRV;
+	static ComPtr<ID3D12DescriptorHeap> descHeapSRV;
+	static int staticSRVIndex;
+	int srvIndex;
 	ComPtr<ID3D12DescriptorHeap> descHeapRTV;
 	ComPtr<ID3D12DescriptorHeap> descHeapDSV;
 	std::array<Vertex, 4> vertices;
@@ -39,7 +41,8 @@ private:
 public:
 	void Initialize();
 	void SetEffectType(UINT32 effectType) { constMap->effectType = effectType; }
-	ID3D12DescriptorHeap* GetSRV() { return descHeapSRV.Get(); }
+	static ID3D12DescriptorHeap* GetSRV() { return descHeapSRV.Get(); }
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle();
 	void Draw();
 	void PreDrawScene();
 	void PostDrawScene();

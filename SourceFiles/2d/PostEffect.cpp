@@ -3,6 +3,8 @@
 #include "WindowsAPI.h"
 
 const float PostEffect::CLEAR_COLOR[4] = { 0.1f,0.25f,0.5f,0 };
+Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> PostEffect::descHeapSRV;
+int PostEffect::staticSRVIndex = 0;
 
 #pragma region 生成関数
 void PostEffect::CreateGraphicsPipelineState()
@@ -79,18 +81,25 @@ void PostEffect::CreateSRV()
 {
 	ID3D12Device* device = DirectXCommon::GetInstance()->GetDevice();
 
-	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc{};
-	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	srvHeapDesc.NumDescriptors = 1;
-	Result result = device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&descHeapSRV));
+	if (!descHeapSRV)
+	{
+		D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc{};
+		srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+		srvHeapDesc.NumDescriptors = 16;
+		Result result = device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&descHeapSRV));
+	}
+
+	srvIndex = staticSRVIndex++;
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
-	device->CreateShaderResourceView(texBuff.Get(), &srvDesc, descHeapSRV->GetCPUDescriptorHandleForHeapStart());
+	device->CreateShaderResourceView(texBuff.Get(), &srvDesc,
+		CD3DX12_CPU_DESCRIPTOR_HANDLE(descHeapSRV->GetCPUDescriptorHandleForHeapStart(), srvIndex,
+			device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)));
 }
 
 void PostEffect::CreateRTV()
@@ -157,7 +166,7 @@ void PostEffect::Draw()
 	ID3D12DescriptorHeap* ppHeaps[] = { descHeapSRV.Get() };
 	cmdList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
-	cmdList->SetGraphicsRootDescriptorTable(1, descHeapSRV->GetGPUDescriptorHandleForHeapStart());
+	cmdList->SetGraphicsRootDescriptorTable(1, GetGPUHandle());
 
 	// 頂点バッファビューの設定コマンド
 	cmdList->IASetVertexBuffers(0, 1, &vbView);
@@ -183,6 +192,13 @@ void PostEffect::PreDrawScene()
 
 	cmdList->ClearRenderTargetView(rtvHandle, CLEAR_COLOR, 0, nullptr);
 	cmdList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE PostEffect::GetGPUHandle()
+{
+	return CD3DX12_GPU_DESCRIPTOR_HANDLE(
+		descHeapSRV->GetGPUDescriptorHandleForHeapStart(), srvIndex,
+		DirectXCommon::GetInstance()->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
 }
 
 void PostEffect::PostDrawScene()
