@@ -12,5 +12,9 @@ float4 main(VSOutput input) : SV_TARGET
     {
         texcolor = GaussianBlur(tex, input);
     }
+    if (effectType == 3)
+    {
+        texcolor = GaussianBlurLinear(tex, input);
+    }
     return texcolor;
 }

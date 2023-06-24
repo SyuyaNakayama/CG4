@@ -11,14 +11,14 @@ private:
 
 	struct ConstBufferData
 	{
-		UINT32 effectType;
-		UINT32 index;
+		UINT32 effectType = 0;
+		float angle = 0;
 	};
 
 	template<class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 	static const float CLEAR_COLOR[4];
 
-	static ID3D12Device* device; 
+	static ID3D12Device* device;
 	ComPtr<ID3D12Resource> texBuff;
 	ComPtr<ID3D12Resource> depthBuff;
 	static ComPtr<ID3D12DescriptorHeap> descHeapSRV;

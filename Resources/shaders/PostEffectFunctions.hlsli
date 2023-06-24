@@ -76,3 +76,27 @@ float4 GaussianBlur(Texture2D<float4> tex, VSOutput i)
     col.a = 1;
     return col;
 }
+
+// 直線のガウシアンブラー
+float4 GaussianBlurLinear(Texture2D<float4> tex, VSOutput i)
+{
+    float totalWeight = 0;
+    float4 color = float4(0, 0, 0, 0);
+    float pickRange = 0.06; // ガウス関数式でいうσ
+
+    // 直線なのでfor文は一つ
+    for (float j = -pickRange * 2; j <= pickRange; j += 0.005)
+    {
+        float x = cos(angle) * j; // 角度から座標を指定
+        float y = sin(angle) * j;
+        float2 pickUV = i.uv + float2(x, y); // 色取得する座標
+        // 自作のガウス関数で計算
+        float weight = Gaussian(i.uv, pickUV, pickRange);
+		// 取得する色にweightを掛ける
+        color += tex.Sample(smp, pickUV) * weight;
+		// 掛けるweightの合計値を控えておく
+        totalWeight += weight;
+    }
+    color /= totalWeight; // 足し合わせた色をweightの合計値で割る
+    return color;
+}

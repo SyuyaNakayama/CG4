@@ -1,7 +1,7 @@
 cbuffer cbuff0 : register(b0)
 {
 	uint effectType;
-    uint index; // マルチテクスチャでポストエフェクトをかけるテクスチャのインデックス
+    float angle; // ぼかす角度(ラジアン)
 }
 
 struct VSOutput

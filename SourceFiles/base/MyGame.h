@@ -1,6 +1,5 @@
 #pragma once
 #include "Framework.h"
-#include "PostEffect.h"
 #include "MultiTexture.h"
 #include "ViewProjection.h"
 

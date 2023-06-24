@@ -37,9 +37,6 @@ void PostEffect::CreateBuffers()
 	CreateBuffer(constBuff.GetAddressOf(),
 		&constMap, (sizeof(ConstBufferData) + 0xff) & ~0xff);
 
-	constMap->effectType = 0;
-	constMap->index = 0;
-
 	Result result;
 	const Vector2 WIN_SIZE = WindowsAPI::WIN_SIZE;
 
