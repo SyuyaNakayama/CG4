@@ -1,9 +1,8 @@
 #pragma once
 #include <array>
-#include <wrl.h>
-#include <d3d12.h>
 #include "Color.h"
 #include "Vector.h"
+#include "DirectXCommon.h"
 
 class PostEffect
 {
@@ -19,6 +18,7 @@ private:
 	template<class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 	static const float CLEAR_COLOR[4];
 
+	static ID3D12Device* device; 
 	ComPtr<ID3D12Resource> texBuff;
 	ComPtr<ID3D12Resource> depthBuff;
 	static ComPtr<ID3D12DescriptorHeap> descHeapSRV;
@@ -30,15 +30,15 @@ private:
 	D3D12_VERTEX_BUFFER_VIEW vbView{};
 	Microsoft::WRL::ComPtr<ID3D12Resource> constBuff;
 	ConstBufferData* constMap = nullptr;
-	ComPtr<ID3D12RootSignature> rootSignature;
-	ComPtr<ID3D12PipelineState> pipelineState;
+	static ComPtr<ID3D12RootSignature> rootSignature;
+	static ComPtr<ID3D12PipelineState> pipelineState;
 
-	void CreateGraphicsPipelineState();
 	void CreateBuffers();
 	void CreateSRV();
 	void CreateRTV();
 	void CreateDSV();
 public:
+	static void StaticInitialize();
 	void Initialize();
 	void SetEffectType(UINT32 effectType) { constMap->effectType = effectType; }
 	static ID3D12DescriptorHeap* GetSRV() { return descHeapSRV.Get(); }

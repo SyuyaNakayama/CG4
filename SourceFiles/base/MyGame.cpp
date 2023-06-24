@@ -11,6 +11,7 @@ void MyGame::Initialize()
 	ImGuiManager::Initialize();
 	viewProjection.Initialize();
 	WorldTransform::SetViewProjection(&viewProjection);
+	PostEffect::StaticInitialize();
 	for (auto& postEffect : postEffects) { postEffect.Initialize(); }
 	multiTextures.Initialize();
 	postEffects[0].SetEffectType(1);

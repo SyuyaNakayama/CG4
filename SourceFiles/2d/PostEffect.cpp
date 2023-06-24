@@ -3,22 +3,12 @@
 
 const float PostEffect::CLEAR_COLOR[4] = { 0,0,0,0 };
 Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> PostEffect::descHeapSRV;
+Microsoft::WRL::ComPtr<ID3D12RootSignature> PostEffect::rootSignature;
+Microsoft::WRL::ComPtr<ID3D12PipelineState> PostEffect::pipelineState;
+ID3D12Device* PostEffect::device;
 int PostEffect::staticSRVIndex = 0;
 
 #pragma region ê∂ê¨ä÷êî
-void PostEffect::CreateGraphicsPipelineState()
-{
-	PipelineManager pipelineManager;
-	pipelineManager.LoadShaders(L"PostEffectVS", L"PostEffectPS");
-	pipelineManager.AddInputLayout("POSITION", DXGI_FORMAT_R32G32_FLOAT);
-	pipelineManager.AddInputLayout("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT);
-	pipelineManager.SetBlendDesc(D3D12_BLEND_OP_ADD, D3D12_BLEND_SRC_ALPHA, D3D12_BLEND_INV_SRC_ALPHA);
-	pipelineManager.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
-	pipelineManager.AddRootParameter(PipelineManager::RootParamType::CBV);
-	pipelineManager.AddRootParameter(PipelineManager::RootParamType::DescriptorTable);
-	pipelineManager.CreatePipeline(pipelineState, rootSignature);
-}
-
 void PostEffect::CreateBuffers()
 {
 	std::array<Vertex, 4> vertices =
@@ -52,7 +42,6 @@ void PostEffect::CreateBuffers()
 
 	Result result;
 	const Vector2 WIN_SIZE = WindowsAPI::WIN_SIZE;
-	ID3D12Device* device = DirectXCommon::GetInstance()->GetDevice();
 
 	CD3DX12_RESOURCE_DESC texresDesc = CD3DX12_RESOURCE_DESC::Tex2D(
 		DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, (UINT64)WIN_SIZE.x, (UINT)WIN_SIZE.y,
@@ -78,17 +67,6 @@ void PostEffect::CreateBuffers()
 
 void PostEffect::CreateSRV()
 {
-	ID3D12Device* device = DirectXCommon::GetInstance()->GetDevice();
-
-	if (!descHeapSRV)
-	{
-		D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc{};
-		srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-		srvHeapDesc.NumDescriptors = 16;
-		Result result = device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&descHeapSRV));
-	}
-
 	srvIndex = staticSRVIndex++;
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
@@ -103,8 +81,6 @@ void PostEffect::CreateSRV()
 
 void PostEffect::CreateRTV()
 {
-	ID3D12Device* device = DirectXCommon::GetInstance()->GetDevice();
-
 	D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc{};
 	rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	rtvHeapDesc.NumDescriptors = 1;
@@ -116,7 +92,6 @@ void PostEffect::CreateRTV()
 void PostEffect::CreateDSV()
 {
 	const Vector2 WIN_SIZE = WindowsAPI::WIN_SIZE;
-	ID3D12Device* device = DirectXCommon::GetInstance()->GetDevice();
 
 	CD3DX12_RESOURCE_DESC depthResourceDesc =
 		CD3DX12_RESOURCE_DESC::Tex2D(
@@ -149,7 +124,28 @@ void PostEffect::Initialize()
 	CreateSRV();
 	CreateRTV();
 	CreateDSV();
-	CreateGraphicsPipelineState();
+}
+
+void PostEffect::StaticInitialize()
+{
+	device = DirectXCommon::GetInstance()->GetDevice();
+
+	PipelineManager pipelineManager;
+	pipelineManager.LoadShaders(L"PostEffectVS", L"PostEffectPS");
+	pipelineManager.AddInputLayout("POSITION", DXGI_FORMAT_R32G32_FLOAT);
+	pipelineManager.AddInputLayout("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT);
+	pipelineManager.SetBlendDesc(D3D12_BLEND_OP_ADD, D3D12_BLEND_SRC_ALPHA, D3D12_BLEND_INV_SRC_ALPHA);
+	pipelineManager.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
+	pipelineManager.AddRootParameter(PipelineManager::RootParamType::CBV);
+	pipelineManager.AddRootParameter(PipelineManager::RootParamType::DescriptorTable);
+	pipelineManager.CreatePipeline(pipelineState, rootSignature);
+
+	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc{};
+	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	srvHeapDesc.NumDescriptors = 16;
+
+	Result result = device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&descHeapSRV));
 }
 
 void PostEffect::Draw()
@@ -197,7 +193,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE PostEffect::GetGPUHandle()
 {
 	return CD3DX12_GPU_DESCRIPTOR_HANDLE(
 		descHeapSRV->GetGPUDescriptorHandleForHeapStart(), srvIndex,
-		DirectXCommon::GetInstance()->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
+		device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
 }
 
 void PostEffect::PostDrawScene()
