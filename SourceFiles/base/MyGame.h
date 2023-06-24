@@ -7,8 +7,9 @@
 class MyGame : public Framework
 {
 private:
-	std::array<PostEffect, 3> postEffects;
-	MultiTexture multiTextures[3];
+	int mode = 0; 
+	std::array<PostEffect, 4> postEffects;
+	MultiTexture multiTextures;
 	ViewProjection viewProjection;
 
 public:

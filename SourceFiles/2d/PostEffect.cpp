@@ -1,8 +1,7 @@
 #include "PostEffect.h"
 #include "D3D12Common.h"
-#include "WindowsAPI.h"
 
-const float PostEffect::CLEAR_COLOR[4] = { 0.1f,0.25f,0.5f,0 };
+const float PostEffect::CLEAR_COLOR[4] = { 0,0,0,0 };
 Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> PostEffect::descHeapSRV;
 int PostEffect::staticSRVIndex = 0;
 

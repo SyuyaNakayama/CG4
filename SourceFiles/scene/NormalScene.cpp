@@ -25,7 +25,7 @@ void NormalScene::Update()
 {
 	debugCamera.Update();
 	// カメラ操作説明
-	if (ImGui::CollapsingHeader("Camera"))
+	if (ImGui::CollapsingHeader("Operate"))
 	{
 		// カメラの回り込み
 		ImGui::Text("Left Drag : Camera Rotate");
@@ -33,6 +33,8 @@ void NormalScene::Update()
 		ImGui::Text("Wheel Drag : Camera Move");
 		// 注視点までの距離
 		ImGui::Text("Wheel Move : Camera Distance Change");
+		// モード切り替え
+		ImGui::Text("Space Key : Mode Change");
 	}
 	// 平行光源の操作
 	if (ImGui::CollapsingHeader("DirectionalLight"))

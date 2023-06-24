@@ -31,7 +31,7 @@ float4 GetHighLumi(float4 col)
 {
     float grayScale = GrayScale(col);
     float extract = smoothstep(0.6, 0.9, grayScale);
-    return col * extract;
+    return float4(col.rgb * extract, 1);
 }
 
 float4 Blur(Texture2D<float4> tex, VSOutput i, float blurRange)
