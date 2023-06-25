@@ -19,7 +19,7 @@ float4 RimLight(float3 eyedir,float3 normal,float3 lightcolor)
 float4 main(VSOutput input) : SV_TARGET
 {
 	// テクスチャマッピング
-	float4 texcolor = tex.Sample(smp, input.uv) * input.spriteColor;
+    float4 texcolor = tex.Sample(smp, input.uv) * input.spriteColor;
 	// 光沢度
 	const float shininess = 20.0f;
 	// 頂点から視点への方向ベクトル

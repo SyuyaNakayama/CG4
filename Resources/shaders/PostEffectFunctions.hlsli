@@ -85,7 +85,7 @@ float4 GaussianBlurLinear(Texture2D<float4> tex, VSOutput i)
     float pickRange = 0.06; // ガウス関数式でいうσ
 
     // 直線なのでfor文は一つ
-    for (float j = -pickRange * 2; j <= pickRange; j += 0.005)
+    for (float j = -pickRange; j <= pickRange; j += 0.005)
     {
         float x = cos(angle) * j; // 角度から座標を指定
         float y = sin(angle) * j;

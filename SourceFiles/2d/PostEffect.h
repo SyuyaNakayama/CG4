@@ -41,6 +41,7 @@ public:
 	static void StaticInitialize();
 	void Initialize();
 	void SetEffectType(UINT32 effectType) { constMap->effectType = effectType; }
+	void SetAngle(float angle) { constMap->angle = angle; }
 	static ID3D12DescriptorHeap* GetSRV() { return descHeapSRV.Get(); }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle();
 	void Draw();
