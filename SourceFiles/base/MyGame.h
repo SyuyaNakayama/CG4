@@ -7,7 +7,7 @@ class MyGame : public Framework
 {
 private:
 	int mode = 0; 
-	std::array<PostEffect, 4> postEffects;
+	std::array<PostEffect, 5> postEffects;
 	std::array<PostEffect, 3> tempTextures; // 一時的なテクスチャを保存しとく領域
 	MultiTexture multiTextures;
 	ViewProjection viewProjection;

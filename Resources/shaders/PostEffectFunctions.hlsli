@@ -100,3 +100,14 @@ float4 GaussianBlurLinear(Texture2D<float4> tex, VSOutput i)
     color /= totalWeight; // ‘«‚µ‡‚í‚¹‚½F‚ğweight‚Ì‡Œv’l‚ÅŠ„‚é
     return color;
 }
+
+float4 CreateDotFilter(Texture2D<float4> tex, VSOutput i)
+{
+    float2 texSize = float2(0, 0);
+    float level = 0;
+    tex.GetDimensions(0, texSize.x, texSize.y, level);
+    float2 st = i.uv / texSize.x * 20;
+    st = frac(st * texSize.xy);
+    float l = distance(st, float2(0.5, 0.5));
+    return float4(1, 1, 1, 1) * 1 - step(0.3, l);
+}

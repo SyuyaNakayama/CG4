@@ -21,6 +21,7 @@ void MyGame::Initialize()
 	postEffects[2].SetAngle(45.0f * PI / 180.0f);
 	postEffects[3].SetEffectType(3); // 線形ガウシアンブラー
 	postEffects[3].SetAngle(135.0f * PI / 180.0f);
+	postEffects[4].SetEffectType(4); // 高輝度抽出 + ドットフィルタ
 }
 
 void MyGame::Update()
@@ -63,16 +64,18 @@ void MyGame::Draw()
 		tempTextures[0].PreDrawScene();
 		postEffects[1].Draw();
 		tempTextures[0].PostDrawScene();
+		
+		postE = { postEffects[0],tempTextures[0] };
 		break;
 	case 2: // クロスフィルタ
-		postEffects[0].PreDrawScene();
+		postEffects[4].PreDrawScene();
 		sceneManager->Draw();
-		postEffects[0].PostDrawScene();
+		postEffects[4].PostDrawScene();
 
 		for (size_t i = 1; i < tempTextures.size(); i++)
 		{
 			postEffects[i + 1].PreDrawScene();
-			postEffects[0].Draw();
+			postEffects[4].Draw();
 			postEffects[i + 1].PostDrawScene();
 
 			tempTextures[i].PreDrawScene();
@@ -85,10 +88,11 @@ void MyGame::Draw()
 		tempTextures[0].PreDrawScene();
 		multiTextures.Draw(postE);
 		tempTextures[0].PostDrawScene();
+		
+		postE = { postEffects[4],tempTextures[0] };
 		break;
 	}
 
-	postE = { postEffects[0],tempTextures[0] };
 
 	dxCommon->PreDraw();
 	switch (mode)
