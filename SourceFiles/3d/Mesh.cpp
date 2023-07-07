@@ -221,7 +221,6 @@ void Mesh::Draw()
 {
 	ID3D12GraphicsCommandList* cmdList = DirectXCommon::GetInstance()->GetCommandList();
 	cmdList->SetGraphicsRootConstantBufferView(2, constBuffer->GetGPUVirtualAddress());
-	cmdList->SetGraphicsRootConstantBufferView(5, constBuffer2->GetGPUVirtualAddress());
 	// 頂点バッファの設定
 	cmdList->IASetVertexBuffers(0, 1, &vbView);
 	// インデックスバッファの設定

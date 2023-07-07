@@ -105,6 +105,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="Resources\shaders\MultiTexObject.hlsli" />
     <None Include="Resources\shaders\OBJShaderHeader.hlsli" />
     <None Include="Resources\shaders\Particle.hlsli" />
     <None Include="Resources\shaders\PostEffect.hlsli" />
@@ -112,6 +113,16 @@
     <None Include="Resources\shaders\Sprite.hlsli" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Resources\shaders\MultiTexObjectPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Resources\shaders\MultiTexObjectVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="Resources\shaders\MultiTexturePS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -175,6 +186,7 @@
     <ClCompile Include="SourceFiles\3d\DebugCamera.cpp" />
     <ClCompile Include="SourceFiles\3d\Mesh.cpp" />
     <ClCompile Include="SourceFiles\3d\Model.cpp" />
+    <ClCompile Include="SourceFiles\3d\MultiTexOBJ.cpp" />
     <ClCompile Include="SourceFiles\3d\ViewProjection.cpp" />
     <ClCompile Include="SourceFiles\3d\WorldTransform.cpp" />
     <ClCompile Include="SourceFiles\base\D3D12Common.cpp" />
@@ -205,6 +217,7 @@
     <ClInclude Include="SourceFiles\3d\DebugCamera.h" />
     <ClInclude Include="SourceFiles\3d\Mesh.h" />
     <ClInclude Include="SourceFiles\3d\Model.h" />
+    <ClInclude Include="SourceFiles\3d\MultiTexOBJ.h" />
     <ClInclude Include="SourceFiles\3d\ViewProjection.h" />
     <ClInclude Include="SourceFiles\3d\WorldTransform.h" />
     <ClInclude Include="SourceFiles\base\D3D12Common.h" />

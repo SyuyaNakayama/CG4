@@ -18,8 +18,10 @@ void NormalScene::Initialize()
 	{
 		worldTransforms[i].translation.x = -4.5f + 3.0f * (float)i;
 	}
+	mulModel.Initialize("cube", "AlphaMask/Dirt.jpg", "AlphaMask/FirldMask.png");
+	Model* m = mulModel.GetModel();
+	m->SetSprite(Sprite::Create("AlphaMask/Grass.jpg"));
 }
-
 
 void NormalScene::Update()
 {
@@ -51,7 +53,8 @@ void NormalScene::Update()
 
 void NormalScene::Draw()
 {
+	mulModel.Draw(worldTransforms[0]);
 	Model::PreDraw();
-	for (size_t i = 0; i < worldTransforms.size(); i++) { model->Draw(worldTransforms[i]); }
+	//for (size_t i = 0; i < worldTransforms.size(); i++) { model->Draw(worldTransforms[i]); }
 	Model::PostDraw();
 }
