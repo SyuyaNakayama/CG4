@@ -17,6 +17,17 @@ cbuffer cbuff2 : register(b2)
 	float3 cameraPos; // カメラ座標(ワールド座標)
 };
 
+struct TexProp
+{
+    float2 tiling;
+    float2 offset;
+};
+
+cbuffer cbuff3 : register(b3)
+{
+    TexProp texProps[3];
+};
+
 // 頂点シェーダーからピクセルシェーダーへのやり取りに使用する構造体
 struct VSOutput
 {

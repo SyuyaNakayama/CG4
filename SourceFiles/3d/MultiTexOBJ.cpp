@@ -21,7 +21,7 @@ void MultiTexOBJ::StaticInitialize()
 	pipelineManager.SetBlendDesc(D3D12_BLEND_OP_ADD, D3D12_BLEND_SRC_ALPHA, D3D12_BLEND_INV_SRC_ALPHA);
 	pipelineManager.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
 	pipelineManager.AddRootParameter(PipelineManager::RootParamType::DescriptorTable);
-	for (size_t i = 0; i < 3; i++) { pipelineManager.AddRootParameter(PipelineManager::RootParamType::CBV); }
+	for (size_t i = 0; i < 4; i++) { pipelineManager.AddRootParameter(PipelineManager::RootParamType::CBV); }
 	pipelineManager.AddRootParameter(PipelineManager::RootParamType::DescriptorTable, 1);
 	pipelineManager.AddRootParameter(PipelineManager::RootParamType::DescriptorTable, 2);
 	pipelineManager.CreatePipeline(pipelinestate, rootsignature);
@@ -37,6 +37,12 @@ void MultiTexOBJ::Initialize(const std::string& modelName, const std::string& su
 	model = Model::Create(modelName, smoothing);
 	subTex = Sprite::Create(subTexName);
 	maskTex = Sprite::Create(maskTexName);
+
+	CreateBuffer(&constBuff, &constMap, (sizeof(ConstBufferData) + 0xff) & ~0xff);
+	for (size_t i = 0; i < 3; i++)
+	{
+		constMap->texProps[i] = { {1,1},{0,0} };
+	}
 }
 
 void MultiTexOBJ::Draw(const WorldTransform& worldTransform)
@@ -52,10 +58,12 @@ void MultiTexOBJ::Draw(const WorldTransform& worldTransform)
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	// カメラ
 	cmdList->SetGraphicsRootConstantBufferView(3, WorldTransform::GetViewProjection()->constBuffer->GetGPUVirtualAddress());
+	// テクスチャ変形パラメータ
+	cmdList->SetGraphicsRootConstantBufferView(4, constBuff->GetGPUVirtualAddress());
 	SpriteCommon* spCommon = SpriteCommon::GetInstance();
 	ID3D12DescriptorHeap* ppHeaps[] = { spCommon->GetDescriptorHeap() };
 	cmdList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
-	cmdList->SetGraphicsRootDescriptorTable(4, spCommon->GetGpuHandle(subTex->GetTextureIndex()));
-	cmdList->SetGraphicsRootDescriptorTable(5, spCommon->GetGpuHandle(maskTex->GetTextureIndex()));
+	cmdList->SetGraphicsRootDescriptorTable(5, spCommon->GetGpuHandle(subTex->GetTextureIndex()));
+	cmdList->SetGraphicsRootDescriptorTable(6, spCommon->GetGpuHandle(maskTex->GetTextureIndex()));
 	model->Draw(worldTransform);
 }
