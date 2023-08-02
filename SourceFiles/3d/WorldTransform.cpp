@@ -17,17 +17,7 @@ void WorldTransform::Update()
 	if (parent) { matWorld *= parent->matWorld; }
 
 	constMap->world = matWorld;
-}
-
-void WorldTransform::Update(const Quaternion& rotQ)
-{
-	Matrix4 matScale = Matrix4::Scale(scale);
-	Matrix4 matRot = rotQ.MakeRotateMatrix();
-	Matrix4 matTrans = Matrix4::Translate(translation);
-	matWorld = matScale * matRot * matTrans;
-	if (parent) { matWorld *= parent->matWorld; }
-
-	constMap->world = matWorld;
+	constMap->dissolve = dissolve;
 }
 
 void WorldTransform::CameraUpdate()

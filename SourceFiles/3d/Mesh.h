@@ -41,28 +41,13 @@ private:
 		float alpha;
 	};
 
-	struct ConstBufferData2
-	{
-		unsigned int isToon; // トゥーンシェーディングするか
-		unsigned int isUseRim; // リムライトを使うか
-		float rimPower; // リムライトの強さ
-		unsigned int isRimSeparate; // リムライトで輪郭を表現する
-	};
-
 	ComPtr<ID3D12Resource> vertBuff;	// 頂点バッファ
 	ComPtr<ID3D12Resource> indexBuff;	// インデックスバッファ
 	ComPtr<ID3D12Resource> constBuffer;	// 定数バッファ
-	ComPtr<ID3D12Resource> constBuffer2;	// 定数バッファ2
 	D3D12_VERTEX_BUFFER_VIEW vbView{};	// 頂点バッファビュー
 	D3D12_INDEX_BUFFER_VIEW ibView{};	// インデックスバッファビュー
 	VertexData* vertMap = nullptr;		// 頂点バッファのマップ
 	ConstBufferData* constMap = nullptr;
-	ConstBufferData2* constMap2 = nullptr;
-
-	bool isToon = false; // トゥーンシェーディングするか
-	bool isUseRim = false; // リムライトを使うか
-	float rimPower = 5.0f; // リムライトの強さ
-	bool isRimSeparate = false; // リムライトで輪郭を表現する
 
 	void LoadMaterial(const std::string& DIRECTORY_PATH, const std::string& FILENAME); // マテリアル読み込み
 	void CalculateSmoothedVertexNormals();
@@ -84,9 +69,5 @@ public:
 	void Update();
 	void SetSprite(std::unique_ptr<Sprite> sprite_) { sprite = move(sprite_); }
 	void SetAnbient(Vector3 anbient) { material.ambient = anbient; }
-	void SetIsToon(bool isToon_) { isToon = isToon_; }
-	void SetIsUseRim(bool isUseRim_) { isUseRim = isUseRim_; }
-	void SetRimPower(float rimPower_) { rimPower = rimPower_; }
-	void SetIsRimSeparate(bool isRimSeparate_) { isRimSeparate = isRimSeparate_; }
 	Sprite* GetSprite() { return sprite.get(); }
 };

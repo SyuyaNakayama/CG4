@@ -54,7 +54,7 @@ void PipelineManager::CreatePipeline(ComPtr<ID3D12PipelineState>& pipelinestate,
 	pipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
 	// ラスタライザステート
 	pipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-
+	pipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	// ブレンドステートの設定
 	pipeline.BlendState.RenderTarget[0] = blenddesc;
 
@@ -68,10 +68,10 @@ void PipelineManager::CreatePipeline(ComPtr<ID3D12PipelineState>& pipelinestate,
 		pipeline.RTVFormats[i] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB; // 0～255指定のRGBA
 	}
 	pipeline.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
-
+	
 	// スタティックサンプラー
 	CD3DX12_STATIC_SAMPLER_DESC samplerDesc = CD3DX12_STATIC_SAMPLER_DESC(0);
-
+	
 	// ルートシグネチャの設定
 	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc{};
 	rootSignatureDesc.Init_1_0(rootParams.size(), rootParams.data(), 1, &samplerDesc,

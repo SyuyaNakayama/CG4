@@ -11,6 +11,7 @@ void NormalScene::Initialize()
 	mulModel.Initialize("cube", "AlphaMask/Dirt.jpg", "AlphaMask/FirldMask.png");
 	Model* m = mulModel.GetModel();
 	m->SetSprite(Sprite::Create("AlphaMask/Grass.jpg"));
+	model = Model::Create("cube");
 }
 
 void NormalScene::Update()
@@ -25,15 +26,37 @@ void NormalScene::Update()
 		ImGui::Text("Wheel Drag : Camera Move");
 		// íçéãì_Ç‹Ç≈ÇÃãóó£
 		ImGui::Text("Wheel Move : Camera Distance Change");
-		// ÉÇÅ[ÉhêÿÇËë÷Ç¶
-		ImGui::Text("Space Key : Mode Change");
 	}
+	if (sceneNum == 0)
+	{
+		ImGuiManager::InputVector("MainTexUVOffset", texProps[0].offset);
+		ImGuiManager::InputVector("MainTexTiling", texProps[0].tiling);
+		ImGuiManager::InputVector("SubTexUVOffset", texProps[1].offset);
+		ImGuiManager::InputVector("SubTexTiling", texProps[1].tiling);
+		ImGuiManager::InputVector("MaskTexUVOffset", texProps[2].offset);
+		ImGuiManager::InputVector("MaskTexTiling", texProps[2].tiling);
+		for (size_t i = 0; i < 3; i++) { mulModel.SetTexProp(i, texProps[i]); }
+	}
+	else
+	{
+		ImGui::SliderFloat("Dissolve", &worldTransform.dissolve, 0, 1);
+	}
+
 	worldTransform.Update();
-	maskTexProp.offset.y = fmod(maskTexProp.offset.y + 0.03f, 1.0f);
-	mulModel.SetTexProp(2, maskTexProp);
+
+	const char* items[] = { "TextureBlend", "Dissolve & Noise" };
+	ImGui::Combo("Scene", &sceneNum, items, IM_ARRAYSIZE(items));
 }
 
 void NormalScene::Draw()
 {
-	mulModel.Draw(worldTransform);
+	if (sceneNum == 0)
+	{
+		mulModel.Draw(worldTransform);
+	}
+	else
+	{
+		Model::PreDraw();
+		model->Draw(worldTransform);
+	}
 }

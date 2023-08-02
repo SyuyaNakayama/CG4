@@ -22,7 +22,7 @@ void Model::StaticInitialize()
 	pipelineManager.SetBlendDesc(D3D12_BLEND_OP_ADD, D3D12_BLEND_SRC_ALPHA, D3D12_BLEND_INV_SRC_ALPHA);
 	pipelineManager.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
 	pipelineManager.AddRootParameter(PipelineManager::RootParamType::DescriptorTable);
-	for (size_t i = 0; i < 5; i++) { pipelineManager.AddRootParameter(PipelineManager::RootParamType::CBV); }
+	for (size_t i = 0; i < 4; i++) { pipelineManager.AddRootParameter(PipelineManager::RootParamType::CBV); }
 	pipelineManager.CreatePipeline(pipelinestate, rootsignature);
 	// ライトグループ生成
 	lightGroup = LightGroup::Create();

@@ -37,7 +37,6 @@ void Mesh::CreateBuffers()
 
 	// 定数バッファ生成
 	CreateBuffer(&constBuffer, &constMap, (sizeof(ConstBufferData) + 0xff) & ~0xff);
-	CreateBuffer(&constBuffer2, &constMap2, (sizeof(ConstBufferData) + 0xff) & ~0xff);
 	// 定数バッファにデータ転送
 	TransferConstBufferData();
 }
@@ -210,11 +209,6 @@ void Mesh::TransferConstBufferData()
 	constMap->diffuse = material.diffuse;
 	constMap->specular = material.specular;
 	constMap->alpha = material.alpha;
-
-	constMap2->isToon = isToon;
-	constMap2->isUseRim = isUseRim;
-	constMap2->rimPower = rimPower;
-	constMap2->isRimSeparate = isRimSeparate;
 }
 
 void Mesh::Draw()

@@ -1,6 +1,7 @@
 cbuffer cbuff0 : register(b0)
 {
 	matrix world; // ワールド行列
+    float dissolve; // ディゾルブの値
 };
 
 cbuffer cbuff1 : register(b1)
@@ -64,14 +65,6 @@ cbuffer cbuff3 : register(b3)
 {
 	matrix viewproj; // ビュープロジェクション行列
 	float3 cameraPos; // カメラ座標(ワールド座標)
-};
-
-cbuffer cbuff4 : register(b4)
-{
-	uint toonshade; // トゥーンシェーディングするか
-	uint rimlight; // リムライトを使うか
-	float rimpower; // リムライトの強さ
-	uint rimseparate; // リムライトで輪郭を表現する
 };
 
 // 頂点シェーダーからピクセルシェーダーへのやり取りに使用する構造体

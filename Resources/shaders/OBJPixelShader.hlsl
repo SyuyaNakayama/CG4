@@ -3,129 +3,52 @@
 Texture2D<float4> tex : register(t0);  // 0番スロットに設定されたテクスチャ
 SamplerState smp : register(s0);      // 0番スロットに設定されたサンプラー
 
-float4 ToonShading(float4 color)
+float2 randomVec(float2 fact)
 {
-	return smoothstep(0.28f, 0.32f, color);
+    float2 angle = float2(
+        dot(fact, float2(127.1, 311.7)),
+        dot(fact, float2(269.5, 183.3))
+    );
+    return frac(sin(angle) * 43758.5453123) * 2 - 1;
 }
 
-float4 RimLight(float3 eyedir,float3 normal,float3 lightcolor)
+// ノイズの密度をdensityで設定、uvにi.uvを代入
+float PerlinNoise(float density, float2 uv)
 {
-	float rim = 1.0 - saturate(dot(normalize(eyedir), normal));
-	float emission = lightcolor * pow(rim, rimpower);
-	if (rimseparate) { emission = step(0.3f, emission); }
-	return emission;
+    float2 uvFloor = floor(uv * density);
+    float2 uvFrac = frac(uv * density);
+    float v[2][2], c[2][2];
+
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++)
+        {
+            // 各頂点のランダムなベクトルを取得
+            v[i][j] = randomVec(uvFloor + float2(i, j));
+            // ランダムなベクトルと頂点に向かうベクトルの内積をとって、各頂点の色を作成
+            c[i][j] = dot(v[i][j], uvFrac - float2(i, j));
+        }
+    }
+
+    float2 u = uvFrac * uvFrac * (3 - 2 * uvFrac);
+    // 描画するピクセルからピクセル色を求める
+    float v0010 = lerp(c[0][0], c[1][0], u.x);
+    float v0111 = lerp(c[0][1], c[1][1], u.x);
+    return lerp(v0010, v0111, u.y) / 2 + 0.5;
+}
+
+float FractalSumNoise(float density, float2 uv)
+{
+    float fn;
+    for (float i = 1; i < 16; i *= 2)
+    {
+        fn += PerlinNoise(density * i, uv) * 1.0 / (i * 2);
+    }
+    return fn;
 }
 
 float4 main(VSOutput input) : SV_TARGET
 {
-	// テクスチャマッピング
-    float4 texcolor = tex.Sample(smp, input.uv) * input.spriteColor;
-	// 光沢度
-	const float shininess = 20.0f;
-	// 頂点から視点への方向ベクトル
-	float3 eyedir = normalize(cameraPos - input.worldpos.xyz);
-	// 環境反射光
-	float3 ambient = m_ambient;
-	// シェーディングによる色
-	float4 shadecolor = float4(0,0,0,0);
-	// 平行光源
-	for (int i = 0; i < DIRLIGHT_NUM; i++)
-	{
-		if (!dirLights[i].active) { continue; }
-		// ライトに向かうベクトルと法線の内積
-		float3 dotlightnormal = dot(dirLights[i].lightv, input.normal);
-		// 反射光ベクトル
-		float3 reflect = normalize(-dirLights[i].lightv + 2 * dotlightnormal * input.normal);
-		// 拡散反射光
-		float3 diffuse = saturate(dotlightnormal * m_diffuse);
-		// 鏡面反射光
-		float3 specular = pow(saturate(dot(reflect, eyedir)), shininess) * m_specular;
-		// 全て加算する
-		shadecolor.rgb += (diffuse * texcolor + specular) * dirLights[i].lightcolor;
-	}
-	// 点光源
-	for (int i = 0; i < POINTLIGHT_NUM; i++)
-	{
-		if (!pointLights[i].active) { continue; }
-		// ライトへのベクトル
-		float3 lightv = pointLights[i].lightpos - input.worldpos.xyz;
-		// ベクトルの長さ
-		float d = length(lightv);
-		// 正規化し、単位ベクトルにする
-		lightv = normalize(lightv);
-		// 距離減衰係数
-		float atten = 1.0f / (pointLights[i].lightatten.x + pointLights[i].lightatten.y * d + pointLights[i].lightatten.z * d * d);
-		// ライトに向かうベクトルと法線の内積
-		float3 dotlightnormal = dot(lightv, input.normal);
-		// 反射光ベクトル
-		float3 reflect = normalize(-lightv + 2 * dotlightnormal * input.normal);
-		// 拡散反射光
-		float3 diffuse = saturate(dotlightnormal * m_diffuse);
-		// 鏡面反射光
-		float3 specular = pow(saturate(dot(reflect, eyedir)), shininess) * m_specular;
-		// 全て加算する
-		shadecolor.rgb += atten * (diffuse + specular) * pointLights[i].lightcolor;
-	}
-	// スポットライト
-	for (int i = 0; i < SPOTLIGHT_NUM; i++)
-	{
-		if (!spotLights[i].active) { continue; }
-		// ライトへの方向ベクトル
-		float3 lightv = spotLights[i].lightpos - input.worldpos.xyz;
-		float d = length(lightv);
-		lightv = normalize(lightv);
-		// 距離減衰係数
-		float atten = saturate(1.0f / (spotLights[i].lightatten.x + spotLights[i].lightatten.y * d + spotLights[i].lightatten.z * d * d));
-		// 角度減衰
-		float cos = dot(lightv, spotLights[i].lightv);
-		// 減衰開始角度から、減衰終了角度にかけて減衰
-		// 減衰開始角度の内側は1倍、減衰終了角度の外側は0倍の輝度
-		float angleatten = smoothstep(spotLights[i].lightfactoranglecos.y, spotLights[i].lightfactoranglecos.x, cos);
-		// 角度減衰を乗算
-		atten *= angleatten;
-		// ライトに向かうベクトルと法線の内積
-		float3 dotlightnormal = dot(lightv, input.normal);
-		// 反射光ベクトル
-		float3 reflect = normalize(-lightv + 2 * dotlightnormal * input.normal);
-		// 拡散反射光
-		float3 diffuse = saturate(dotlightnormal * m_diffuse);
-		// 鏡面反射光
-		float3 specular = pow(saturate(dot(reflect, eyedir)), shininess) * m_specular;
-		// 全て加算する
-		shadecolor.rgb += atten * (diffuse + specular) * spotLights[i].lightcolor;
-	}
-	// 丸影
-	for (int i = 0; i < CIRCLESHADOW_NUM; i++)
-	{
-		if (!circleShadows[i].active) { continue; }
-		// オブジェクト表面からキャスターへのベクトル
-		float3 casterv = circleShadows[i].casterPos - input.worldpos.xyz;
-		// 投影方向での距離
-		float d = dot(casterv, circleShadows[i].dir);
-		// 距離減衰係数
-		float atten = saturate(1.0f / (circleShadows[i].atten.x + circleShadows[i].atten.y * d + circleShadows[i].atten.z * d * d));
-		// 距離がマイナスなら0にする
-		atten *= step(0, d);
-		// 仮想ライトの座標
-		float3 lightpos = circleShadows[i].casterPos + circleShadows[i].dir * circleShadows[i].distanceCasterLight;
-		// オブジェクト表面からライトへのベクトル(単位ベクトル)
-		float3 lightv = normalize(lightpos - input.worldpos.xyz);
-		// 角度減衰
-		float cos = dot(lightv, circleShadows[i].dir);
-		// 減衰開始角度から、減衰終了角度にかけて減衰
-		// 減衰開始角度の内側は1倍、減衰終了角度の外側は0倍の輝度
-		float angleatten = smoothstep(circleShadows[i].factorAngleCos.y, circleShadows[i].factorAngleCos.x, cos);
-		// 角度減衰を乗算
-		atten *= angleatten;
-		// 全て減算する
-		shadecolor.rgb -= atten;
-	}
-
-	shadecolor.a = m_alpha;
-	if (toonshade) { return ToonShading(shadecolor) + float4(ambientColor * ambient, m_alpha) * texcolor; }
-	if (rimlight)
-	{
-		shadecolor += RimLight(eyedir,input.normal,dirLights[0].lightcolor.rgb);
-	}
-	return shadecolor + float4(ambientColor * ambient, m_alpha) * texcolor;
+    float pn = FractalSumNoise(10, input.uv);
+    clip(pn - dissolve);
+    return float4(pn, pn, pn, 1);
 }

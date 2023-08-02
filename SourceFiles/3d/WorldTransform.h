@@ -1,6 +1,5 @@
 #pragma once
 #include "ViewProjection.h"
-#include "Quaternion.h"
 
 class WorldTransform
 {
@@ -9,6 +8,7 @@ private:
 	struct ConstBufferData
 	{
 		Matrix4 world; // ワールド行列
+		float dissolve; // ディゾルブ
 	};
 
 	// ビュープロジェクションのポインタ
@@ -19,11 +19,10 @@ public:
 	Microsoft::WRL::ComPtr<ID3D12Resource> constBuffer;
 	Vector3 scale = { 1,1,1 }, rotation, translation;
 	WorldTransform* parent = nullptr;
+	float dissolve = 0;
 
 	void Initialize();
 	void Update();
-	// 回転にQuaternionを使う場合
-	void Update(const Quaternion& rotQ);
 	static void CameraUpdate();
 	Vector3 GetWorldPosition() { return { matWorld.m[3][0],matWorld.m[3][1],matWorld.m[3][2] }; }
 	static void SetViewProjection(ViewProjection* viewProjection) { viewProjection_ = viewProjection; }
